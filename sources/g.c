@@ -1,4 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "fusion-c/header/msx_fusion.h"
+#include "fusion-c/header/io.h"
 
 // DEFINIR VARIABLES GLOBALES Y CONSTANTES
 // CONSTANTES ENSAMBLADOR
@@ -114,6 +118,8 @@
 #define FASE5 5
 #define FASE6 6
 
+#define ESPERAINTROFASE 10 //600 POR DEFECTO
+
 // VARIABLES JUEGO
 unsigned int record; // VALOR MÁXIMO DE PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA CON "RECORD")
 unsigned int puntos; // PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA A 0)
@@ -138,7 +144,7 @@ void LimpiaTilesTexto 			(char tercio);
 void PonerColorTileLetra		(void);
 void PonerTileLocate 			(unsigned int mapt, char fila, char col, char* texto);
 void PintarIntroFase			(unsigned char fase, unsigned char nivel);
-void CargaFondoJuego			(unsigned char fase);
+void CargaFondoJuego			(char fase);
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 	(void);
@@ -185,15 +191,16 @@ void main(void)
 
 		// LOOP JUEGO FASE
 		do {
+			// PINTAR INTRO DE FASE
+			PintarIntroFase(fase,nivel);
+
 			switch(fase) {
 				case FASE1: {
-					// PINTAR INTRO DE FASE
-					PintarIntroFase(fase,nivel);
-
 					// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
 					CargaFondoJuego(fase);
+					do {} while(VERDADERO);
 
 					// PINTAR PANTALLA DE FASE
 					// PINTAR TEXTOS
@@ -229,7 +236,6 @@ void main(void)
 				}
 
 				case FASE2: {
-			// PINTAR INTRO DE FASE
 
 			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
@@ -269,8 +275,6 @@ void main(void)
 				}
 
 				case FASE3: {
-			// PINTAR INTRO DE FASE
-
 			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
 			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
@@ -309,8 +313,6 @@ void main(void)
 				}
 
 				case FASE4: {
-			// PINTAR INTRO DE FASE
-
 			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
 			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
@@ -349,8 +351,6 @@ void main(void)
 				}
 
 				case FASE5: {
-			// PINTAR INTRO DE FASE
-
 			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
 			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
@@ -389,9 +389,6 @@ void main(void)
 				}
 
 				case FASE6: {
-					// PINTAR INTRO DE FASE
-					PintarIntroFase(fase,nivel);
-
 					// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
@@ -1195,7 +1192,7 @@ void PintarIntroFase (unsigned char fase, unsigned char nivel) {
 
 	ShowDisplay(); // MOSTRAMOS RESULTADO
 
-	WAIT(600);
+	WAIT(ESPERAINTROFASE);
 } // FIN PintaTileTexto
 
 
@@ -1211,31 +1208,56 @@ void PintarIntroFase (unsigned char fase, unsigned char nivel) {
 	char BC1[256];
 	char BC2[256];
 */
-void CargaFondoJuego (unsigned char fase) {
-	switch(fase) {
-		case 1: {
-			fondo.BP0[] = {
-1, 2
-			}
-			break;
-		}
-		case 2: {
-			break;
-		}
-		case 3: {
-			break;
-		}
-		case 4: {
-			break;
-		}
-		case 5: {
-			break;
-		}
-		case 6: {
-			break;
-		}
-	}
+void CargaFondoJuego (char fase) {
+	int salto;
+	unsigned char contador;
 
+	char bufferPatron[32]; // Set a 32 bytes buffer
+	char bufferColor[32]; // Set a 32 bytes buffer
+	int fHPatron; // Set a file handler variable
+	int fHColor; // Set a file handler variable
+
+	FCBlist *FCBPatron = FCBs(); // FCB initialization
+	FCBlist *FCBColor = FCBs(); // FCB initialization
+
+	char ficheroFasePatron[20] = "stage"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
+	char ficheroFaseColor[20] = "stage"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
+
+	// ELABORANDO NOMBRE DE LOS FICHERO A CARGAR DE PATRONES Y COLOR
+	//strcpy(ficheroFasePatron, "stage");
+	//strcpy(ficheroFaseColor, "stage");
+	/*
+	strncat(ficheroFasePatron, (unsigned char *)fase, 1);
+	strncat(ficheroFaseColor, (unsigned char *)fase, 1);
+	strncat(ficheroFasePatron, ".sc2.chr", 8);
+	strncat(ficheroFaseColor, ".sc2.clr", 8);
+*/
+
+PonerTileLocate (MAPT1, 0, 0, ficheroFasePatron);
+PonerTileLocate (MAPT1, 1, 0, ficheroFaseColor);
+
+
+/*
+	fHPatron = open(ficheroFasePatron, O_RDWR); // open file for read
+		VpokeFirst(TPB0);
+		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
+			read(fHPatron, bufferPatron, salto); // Read 10 bytes to 74
+			for (contador = 0; contador < 32; contador++) {
+				VpokeNext(bufferPatron[contador]);
+			}
+		}
+	close(fHPatron); // Close file
+
+	fHColor = open(ficheroFaseColor, O_RDWR); // open file for read
+		VpokeFirst(TCB0);
+		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
+			read(fHColor, bufferColor, salto); // Read 10 bytes to 74
+			for (contador = 0; contador < 32; contador++) {
+				VpokeNext(bufferColor[contador]);
+			}
+		}
+	close(fHColor); // Close file
+	*/
 }// FIN CargaFondoJuego
 
 
