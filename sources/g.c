@@ -123,7 +123,9 @@
 // VARIABLES JUEGO
 unsigned int record; // VALOR MÁXIMO DE PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA CON "RECORD")
 unsigned int puntos; // PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA A 0)
-unsigned char cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QUE CONVERTIR CON itoa
+char cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QUE CONVERTIR CON itoa
+char fase; // CADA STAGE DEL JUEGO 1-> 6
+char nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
 
 // ESTRUCTURAS
 struct escena // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
@@ -143,8 +145,8 @@ void PreparaTilesTexto 			(char tercio);
 void LimpiaTilesTexto 			(char tercio);
 void PonerColorTileLetra		(void);
 void PonerTileLocate 			(unsigned int mapt, char fila, char col, char* texto);
-void PintarIntroFase			(unsigned char fase, unsigned char nivel);
-void CargaFondoJuego			(char fase);
+void PintarIntroFase			();
+void CargaFondoJuego			();
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 	(void);
@@ -157,10 +159,8 @@ void main(void)
 	// DEFINIR VARIABLES NO GLOBALES
 	struct escena fondo; // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
 
-	unsigned char finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
-	unsigned char fase; // CADA STAGE DEL JUEGO 1-> 5
-	unsigned char nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
-	unsigned char vidas; // VIDAS DEL PROTA DE LA PARTIDA
+	char finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
+	char vidas; // VIDAS DEL PROTA DE LA PARTIDA
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
 	Screen(2);
@@ -185,21 +185,22 @@ void main(void)
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
 		finpartida = FALSO;
-		fase = FASE1; 
+		fase = 1; 
 		nivel = 1; 
 		vidas = VIDAS;
 
 		// LOOP JUEGO FASE
 		do {
 			// PINTAR INTRO DE FASE
-			PintarIntroFase(fase,nivel);
+			PintarIntroFase();
 
 			switch(fase) {
 				case FASE1: {
 					// SETUP / INICIALIZACIÓN VARIABLES DE FASE
 
+
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
-					CargaFondoJuego(fase);
+					CargaFondoJuego();
 					do {} while(VERDADERO);
 
 					// PINTAR PANTALLA DE FASE
@@ -453,7 +454,7 @@ void main(void)
 // ENTRADAS: -
 // SALIDAS: -
 void PintarPantallaInicialJuego () {
-	unsigned int contador;
+	char contador;
 
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
@@ -1132,7 +1133,7 @@ void PonerTileLocate (unsigned int mapt, char fila, char col, char* texto) {
 // fase: fase por la que vamos 1->6
 // nivel: de 1 en adelante (el nivel incrementa la dificultad de las fases y se incremente cuando se superan todas las fases)
 // SALIDAS: -
-void PintarIntroFase (unsigned char fase, unsigned char nivel) {
+void PintarIntroFase () {
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
 	PreparaTilesTexto ((char)1);
@@ -1196,21 +1197,12 @@ void PintarIntroFase (unsigned char fase, unsigned char nivel) {
 } // FIN PintaTileTexto
 
 
-// FUNCION: METE EN LA VARIABLE fondo LOS TILES Y COLORES SEGUN LA FASE
+// FUNCION: CARGA EL FONDO DE PANTALLA, DEPENDE DE LA FASE QUÉ FONDO CARGA
 // ENTRADAS: 
-// fase: fase por la que vamos 1->6
 // SALIDAS: -
-/*
-	char BP0[256]; // PATRONES
-	char BP1[256];
-	char BP2[256];
-	char BC0[256]; // COLORES
-	char BC1[256];
-	char BC2[256];
-*/
-void CargaFondoJuego (char fase) {
+void CargaFondoJuego () {
 	int salto;
-	unsigned char contador;
+	char contador;
 
 	char bufferPatron[32]; // Set a 32 bytes buffer
 	char bufferColor[32]; // Set a 32 bytes buffer
@@ -1220,24 +1212,19 @@ void CargaFondoJuego (char fase) {
 	FCBlist *FCBPatron = FCBs(); // FCB initialization
 	FCBlist *FCBColor = FCBs(); // FCB initialization
 
-	char ficheroFasePatron[20] = "stage"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
-	char ficheroFaseColor[20] = "stage"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
+	char ficheroFasePatron[20] = "STAGE"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
+	char ficheroFaseColor[20] = "STAGE"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
+	char auxiliar[1];
+
 
 	// ELABORANDO NOMBRE DE LOS FICHERO A CARGAR DE PATRONES Y COLOR
-	//strcpy(ficheroFasePatron, "stage");
-	//strcpy(ficheroFaseColor, "stage");
-	/*
-	strncat(ficheroFasePatron, (unsigned char *)fase, 1);
-	strncat(ficheroFaseColor, (unsigned char *)fase, 1);
-	strncat(ficheroFasePatron, ".sc2.chr", 8);
-	strncat(ficheroFaseColor, ".sc2.clr", 8);
-*/
+	// NOTA LOS NOMBRES ESTARAN EN MAYUSCULAS
+	itoa(fase, auxiliar);
+	strcat(ficheroFasePatron,  auxiliar);
+	strcat(ficheroFaseColor, auxiliar);
+	strcat(ficheroFasePatron, ".SC2.CHR");
+	strcat(ficheroFaseColor, ".SC2.CLR");
 
-PonerTileLocate (MAPT1, 0, 0, ficheroFasePatron);
-PonerTileLocate (MAPT1, 1, 0, ficheroFaseColor);
-
-
-/*
 	fHPatron = open(ficheroFasePatron, O_RDWR); // open file for read
 		VpokeFirst(TPB0);
 		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
@@ -1257,7 +1244,6 @@ PonerTileLocate (MAPT1, 1, 0, ficheroFaseColor);
 			}
 		}
 	close(fHColor); // Close file
-	*/
 }// FIN CargaFondoJuego
 
 
