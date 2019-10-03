@@ -1,0 +1,19 @@
+GIMP Palette
+Name: VDP MSX TMS9918 (JannoneScreenConversor)
+Columns: 15
+#
+  0   0   0	black
+ 32 200  64	medium green
+ 94 220 120	light green
+ 84  85 237	dark blue
+125 118 252	light blue
+212  82  77	dark red
+ 66 235 245	cyan
+252  85  84	medium red
+255 121 120	light red
+212 193  84	dark yellow
+230 206 128	light yellow
+ 33 176  59	dark green
+201  91 186	magenta
+204 204 204	gray
+255 255 255	white

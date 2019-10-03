@@ -1,0 +1,19 @@
+GIMP Palette
+Name: VDP MSX TMS9918 (blueMSX)
+Columns: 15
+#
+  0   0   0	black
+  0 241  20	medium green
+ 68 249  86	light green
+ 85  79 255	dark blue
+128 111 255	light blue
+250  80  51	dark red
+ 12 255 255	cyan
+255  81  52	medium red
+255 115  86	light red
+226 210   4	dark yellow
+242 217  71	light yellow
+  4 212  19	dark green
+231  80 229	magenta
+208 208 208	gray
+255 255 255	white
