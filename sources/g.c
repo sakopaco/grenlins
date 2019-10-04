@@ -145,13 +145,14 @@ void PreparaTilesTexto 			(char tercio);
 void LimpiaTilesTexto 			(char tercio);
 void PonerColorTileLetra		(void);
 void PonerTileLocate 			(unsigned int mapt, char fila, char col, char* texto);
-void PintarIntroFase			();
-void CargaFondoJuego			();
+void PintarIntroFase			(void);
+void CargaFondoJuego			(void);
 
 // FUNCIONES GENERICAS
-void  PulsaEspacio 	(void);
-char* itoa 			(int i, char b[]);
-void  WAIT 			(int cicles);
+void  PulsaEspacio 		(void);
+char* itoa 				(int i, char b[]);
+void  WAIT 				(int cicles);
+char  FT_RandomNumber 	(char a, char b);
 
 // INICIO PROGRAMA
 void main(void) 
@@ -1225,6 +1226,7 @@ void CargaFondoJuego () {
 	strcat(ficheroFasePatron, ".SC2.CHR");
 	strcat(ficheroFaseColor, ".SC2.CLR");
 
+	// LEYENDO FICHERO DE PATRONES DE TILES
 	fHPatron = open(ficheroFasePatron, O_RDWR); // open file for read
 		VpokeFirst(TPB0);
 		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
@@ -1235,6 +1237,7 @@ void CargaFondoJuego () {
 		}
 	close(fHPatron); // Close file
 
+	// LEYENDO FICHERO DE COLORES DE TILES
 	fHColor = open(ficheroFaseColor, O_RDWR); // open file for read
 		VpokeFirst(TCB0);
 		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
@@ -1300,6 +1303,17 @@ void WAIT(int cicles) {
 } // FIN WAIT
 
 
+// FUNCION: DEVUELVE UN NUMERO ALEATORIO ENTRE A Y B-1 (EN PRINCIPIO CHAR CON LO QUE SE TRABAJA COMO MUCHO A 255)
+// ENTRADAS:
+// a:  NÚMERO MINIMO
+// b:  NÚMERO MAXIMO
+// SALIDAS: -
+char FT_RandomNumber (char a, char b)
+{
+    return(rand()%(b-a)+a); // 
+}
+
 // TODO
 
 
+ver funcion del notepad
