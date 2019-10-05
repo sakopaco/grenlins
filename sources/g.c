@@ -127,6 +127,11 @@ char cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QU
 char fase; // CADA STAGE DEL JUEGO 1-> 6
 char nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
 
+// VARIABLES DE FUNCIONES GENERICAS
+static FCB file; // VARIABLE PARA LEER UN FICHERO
+
+
+/*
 // ESTRUCTURAS
 struct escena // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
 {
@@ -137,6 +142,7 @@ struct escena // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
 	char BC1[256];
 	char BC2[256];
 } fondo;
+*/
 
 // SETUP / INICIALIZACIÓN GLOBAL
 // FUNCIONES JUEGO
@@ -153,6 +159,7 @@ void  PulsaEspacio 		(void);
 char* itoa 				(int i, char b[]);
 void  WAIT 				(int cicles);
 char  FT_RandomNumber 	(char a, char b);
+void  FT_SetName		( FCB *p_fcb, const char *p_name );
 
 // INICIO PROGRAMA
 void main(void) 
@@ -1202,51 +1209,86 @@ void PintarIntroFase () {
 // ENTRADAS: 
 // SALIDAS: -
 void CargaFondoJuego () {
+
+	int estadofichero;
+
 	int salto;
-	char contador;
+	int contador;
 
-	char bufferPatron[32]; // Set a 32 bytes buffer
-	char bufferColor[32]; // Set a 32 bytes buffer
-	int fHPatron; // Set a file handler variable
-	int fHColor; // Set a file handler variable
-
-	FCBlist *FCBPatron = FCBs(); // FCB initialization
-	FCBlist *FCBColor = FCBs(); // FCB initialization
-
-	char ficheroFasePatron[20] = "STAGE"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
-	char ficheroFaseColor[20] = "STAGE"; // NOMBRE DEL FICHERO SC2 CON EL FONDO DE LA FASE
-	char auxiliar[1];
+	char bufferFichero[32]; // Set a 32 bytes buffer
+	
 
 
-	// ELABORANDO NOMBRE DE LOS FICHERO A CARGAR DE PATRONES Y COLOR
-	// NOTA LOS NOMBRES ESTARAN EN MAYUSCULAS
-	itoa(fase, auxiliar);
-	strcat(ficheroFasePatron,  auxiliar);
-	strcat(ficheroFaseColor, auxiliar);
-	strcat(ficheroFasePatron, ".SC2.CHR");
-	strcat(ficheroFaseColor, ".SC2.CLR");
+	switch(fase) {
+		case 1: {
+			FT_SetName( &file, "ST1SC2.CHR" );
+/*			
+Screen(0);
+SetColors(15,1,1);
+Print("dentro de 1");
+Print(file.name);
+exit();
+*/
+
+			break;
+		}
+		case 2: {
+			FT_SetName( &file, "STAGE2.SC2.CHR" );
+			break;
+		}
+		case 3: {
+			FT_SetName( &file, "STAGE3.SC2.CHR" );
+			break;
+		}
+		case 4: {
+			FT_SetName( &file, "STAGE4.SC2.CHR" );
+			break;
+		}
+		case 5: {
+			FT_SetName( &file, "STAGE5.SC2.CHR" );
+			break;
+		}
+		case 6: {
+			FT_SetName( &file, "STAGE6.SC2.CHR" );
+			break;
+		}
+	}
 
 	// LEYENDO FICHERO DE PATRONES DE TILES
-	fHPatron = open(ficheroFasePatron, O_RDWR); // open file for read
+	/*
+	    if(fcb_open( &file ) != FCB_SUCCESS) 
+        {
+          Screen(0);
+          SetColors(15,1,1);
+          Print("se produjo un error");
+          exit();
+        }
+	*/
+	fcb_open( &file )
 		VpokeFirst(TPB0);
 		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
-			read(fHPatron, bufferPatron, salto); // Read 10 bytes to 74
+			fcb_read( &file, bufferFichero, salto );
 			for (contador = 0; contador < 32; contador++) {
-				VpokeNext(bufferPatron[contador]);
+				VpokeNext(bufferFichero[contador]);
 			}
 		}
-	close(fHPatron); // Close file
+	fcb_close( &file );
 
-	// LEYENDO FICHERO DE COLORES DE TILES
-	fHColor = open(ficheroFaseColor, O_RDWR); // open file for read
+	FT_SetName( &file, "ST1SC2.CLR" );
+	fcb_open( &file )
 		VpokeFirst(TCB0);
 		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
-			read(fHColor, bufferColor, salto); // Read 10 bytes to 74
+			fcb_read( &file, bufferFichero, salto );
 			for (contador = 0; contador < 32; contador++) {
-				VpokeNext(bufferColor[contador]);
+				VpokeNext(bufferFichero[contador]);
 			}
 		}
-	close(fHColor); // Close file
+	fcb_close( &file );
+
+	VpokeFirst(MAPT1);
+	for (contador = 0; contador < 736; contador++) {
+		VpokeNext(contador);
+	}
 }// FIN CargaFondoJuego
 
 
@@ -1313,7 +1355,29 @@ char FT_RandomNumber (char a, char b)
     return(rand()%(b-a)+a); // 
 }
 
+
+// FUNCION: PONE UN NOMBRE EN LA ESTRUCTURA FCB PARA PODERLA USAR CON FICHEROS
+// ENTRADAS:
+// a:  p_fcb // PUNTERO A ESTRUCTURA DE FICHERO FCB
+// b:  p_name // TEXTO CON EL NOMBRE DEL FICHERO
+// SALIDAS:
+void FT_SetName( FCB *p_fcb, const char *p_name ) {
+  char i, j;
+  memset( p_fcb, 0, sizeof(FCB) );
+  for( i = 0; i < 11; i++ ) {
+    p_fcb->name[i] = ' ';
+  }
+  for( i = 0; (i < 8) && (p_name[i] != 0) && (p_name[i] != '.'); i++ ) {
+    p_fcb->name[i] =  p_name[i];
+  }
+  if( p_name[i] == '.' ) {
+    i++;
+    for( j = 0; (j < 3) && (p_name[i + j] != 0) && (p_name[i + j] != '.'); j++ ) {
+      p_fcb->ext[j] =  p_name[i + j] ;
+    }
+  }
+}
+
 // TODO
 
 
-ver funcion del notepad
