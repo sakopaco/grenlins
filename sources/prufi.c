@@ -20,59 +20,16 @@
 #define SPRITEPAT 14336
 
 void FT_SetName( FCB *p_fcb, const char *p_name );
+void CargaFicheroVRAM (char *nombreFichero, int dirInicio);
 
 static FCB file; 
 
 void main() {
-	int fila,columna;
-	int contador;
-	unsigned char bufferFichero[256];
-
 	Screen(2);
 	SetColors(15,4,4);
 
-	FT_SetName( &file, "ST1SC2.CHR" );	// PATRONES + RUIDO ¿?
-	fcb_open( &file );
-	VpokeFirst(TPB0);
-	for(fila = 0; fila < 24; fila ++) {
-		fcb_read( &file, bufferFichero, 256 );
-		for (columna = 0; columna < 256 ; columna++) VpokeNext(bufferFichero[columna]);
-	}
-	fcb_close( &file );
-
-	FT_SetName( &file, "ST1SC2.CLR" );	
-	fcb_open( &file );
-	VpokeFirst(TCB0);
-	for(fila = 0; fila < 24; fila ++) {
-		fcb_read( &file, bufferFichero, 256 );
-		for (columna = 0; columna < 256 ; columna++) VpokeNext(bufferFichero[columna]);
-	}
-	fcb_close( &file );
-
-/*
-	//FT_SetName( &file, "ESJAAL.SC2" );	// PATRONES BUENO (PERO TIENE MÁS)
-	FT_SetName( &file, "ESJAAT.SC2" );	// PATRONES + RUIDO ¿?
-	//FT_SetName( &file, "ESJACH.SC2" );	
-	//FT_SetName( &file, "ESJASH.SC2" );	// COLORES 
-	fcb_open( &file );
-	VpokeFirst(TPB0);
-	for(fila = 0; fila < 24; fila ++) {
-		fcb_read( &file, bufferFichero, 256 );
-		for (columna = 0; columna < 256 ; columna++) VpokeNext(bufferFichero[columna]);
-	}
-	fcb_close( &file );
-
-	FT_SetName( &file, "ESJASH.SC2" );	
-	fcb_open( &file );
-	VpokeFirst(TCB0);
-	for(fila = 0; fila < 24; fila ++) {
-		fcb_read( &file, bufferFichero, 256 );
-		for (columna = 0; columna < 256 ; columna++) VpokeNext(bufferFichero[columna]);
-	}
-	fcb_close( &file );
-*/
-
-
+	CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+	CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 } /////////////////////////
 
 void FT_SetName( FCB *p_fcb, const char *p_name ) {
@@ -92,3 +49,16 @@ void FT_SetName( FCB *p_fcb, const char *p_name ) {
   }
 }
 
+void CargaFicheroVRAM (char *nombreFichero, int dirInicio) {
+	int fila, contador;
+	unsigned char bufferFichero[256];
+
+	FT_SetName( &file, nombreFichero );
+	fcb_open( &file );
+	VpokeFirst(dirInicio);
+	for(fila = 0; fila < 24; fila ++) {
+		fcb_read( &file, bufferFichero, 256 );
+		for (contador = 0; contador < 256 ; contador++) VpokeNext(bufferFichero[contador]);
+	}
+	fcb_close( &file );
+}

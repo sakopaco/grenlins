@@ -159,7 +159,8 @@ void  PulsaEspacio 		(void);
 char* itoa 				(int i, char b[]);
 void  WAIT 				(int cicles);
 char  FT_RandomNumber 	(char a, char b);
-void  FT_SetName		( FCB *p_fcb, const char *p_name );
+void  FT_SetName		(FCB *p_fcb, const char *p_name);
+void  CargaFicheroVRAM 	(char *nombreFichero, int dirInicio);
 
 // INICIO PROGRAMA
 void main(void) 
@@ -1209,86 +1210,51 @@ void PintarIntroFase () {
 // ENTRADAS: 
 // SALIDAS: -
 void CargaFondoJuego () {
-
-	int estadofichero;
-
-	int salto;
 	int contador;
 
-	char bufferFichero[32]; // Set a 32 bytes buffer
-	
-
-
+	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
+	// CARGAR LOS PATRONES Y COLORES
 	switch(fase) {
 		case 1: {
-			FT_SetName( &file, "ST1SC2.CHR" );
-/*			
-Screen(0);
-SetColors(15,1,1);
-Print("dentro de 1");
-Print(file.name);
-exit();
-*/
-
+			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 			break;
 		}
 		case 2: {
-			FT_SetName( &file, "STAGE2.SC2.CHR" );
+			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 			break;
 		}
 		case 3: {
-			FT_SetName( &file, "STAGE3.SC2.CHR" );
+			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 			break;
 		}
 		case 4: {
-			FT_SetName( &file, "STAGE4.SC2.CHR" );
+			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 			break;
 		}
 		case 5: {
-			FT_SetName( &file, "STAGE5.SC2.CHR" );
+			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 			break;
 		}
 		case 6: {
-			FT_SetName( &file, "STAGE6.SC2.CHR" );
+			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
+			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
 			break;
 		}
 	}
 
-	// LEYENDO FICHERO DE PATRONES DE TILES
-	/*
-	    if(fcb_open( &file ) != FCB_SUCCESS) 
-        {
-          Screen(0);
-          SetColors(15,1,1);
-          Print("se produjo un error");
-          exit();
-        }
-	*/
-	fcb_open( &file )
-		VpokeFirst(TPB0);
-		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
-			fcb_read( &file, bufferFichero, salto );
-			for (contador = 0; contador < 32; contador++) {
-				VpokeNext(bufferFichero[contador]);
-			}
-		}
-	fcb_close( &file );
-
-	FT_SetName( &file, "ST1SC2.CLR" );
-	fcb_open( &file )
-		VpokeFirst(TCB0);
-		for (salto = 0; salto < 736; salto++) { // LIMITE salto 32 * 23 (NO 24 SE EMPIEZA POR 0)
-			fcb_read( &file, bufferFichero, salto );
-			for (contador = 0; contador < 32; contador++) {
-				VpokeNext(bufferFichero[contador]);
-			}
-		}
-	fcb_close( &file );
-
+	// PONER LOS TILES EN SUS POSICIONES
 	VpokeFirst(MAPT1);
-	for (contador = 0; contador < 736; contador++) {
-		VpokeNext(contador);
-	}
+	for (contador = 0; contador < 255; contador++) VpokeNext(contador);
+	VpokeFirst(MAPT2);
+	for (contador = 0; contador < 255; contador++) VpokeNext(contador);
+	VpokeFirst(MAPT2);
+	for (contador = 0; contador < 255; contador++) VpokeNext(contador);
+	ShowDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 }// FIN CargaFondoJuego
 
 
@@ -1347,19 +1313,19 @@ void WAIT(int cicles) {
 
 // FUNCION: DEVUELVE UN NUMERO ALEATORIO ENTRE A Y B-1 (EN PRINCIPIO CHAR CON LO QUE SE TRABAJA COMO MUCHO A 255)
 // ENTRADAS:
-// a:  NÚMERO MINIMO
-// b:  NÚMERO MAXIMO
+// a: NÚMERO MINIMO
+// b: NÚMERO MAXIMO
 // SALIDAS: -
 char FT_RandomNumber (char a, char b)
 {
     return(rand()%(b-a)+a); // 
-}
+} // FIN FT_RandomNumber
 
 
 // FUNCION: PONE UN NOMBRE EN LA ESTRUCTURA FCB PARA PODERLA USAR CON FICHEROS
 // ENTRADAS:
-// a:  p_fcb // PUNTERO A ESTRUCTURA DE FICHERO FCB
-// b:  p_name // TEXTO CON EL NOMBRE DEL FICHERO
+// a: p_fcb // PUNTERO A ESTRUCTURA DE FICHERO FCB
+// b: p_name // TEXTO CON EL NOMBRE DEL FICHERO
 // SALIDAS:
 void FT_SetName( FCB *p_fcb, const char *p_name ) {
   char i, j;
@@ -1376,7 +1342,28 @@ void FT_SetName( FCB *p_fcb, const char *p_name ) {
       p_fcb->ext[j] =  p_name[i + j] ;
     }
   }
-}
+} // FT_SetName
+
+
+// FUNCION: CARGA LOS TRES TERCIOS DE PANTALLA EN VRAM BIEN SEAN PATRONES O COLORES
+// ENTRADAS:
+// a: p_fcb // NOMBRE DEL FICHERO A CARGAR
+// b: p_name // DIRECCIÓN INICIO A CARGAR EN VRAM 0 - PATRONES / 8192 - COLORES
+// SALIDAS:
+void CargaFicheroVRAM (char *nombreFichero, int dirInicio) {
+	int fila, contador;
+	unsigned char bufferFichero[256]; // TODOS LOS TILES DE UNA FILA. NO SÉ DE DONDE SALE EL 256 >8( DEBERÍA SER 32 PERO SÓLO FUNCIONA CON 256 :_(
+
+	FT_SetName( &file, nombreFichero ); // INDICAR NOMBRE FICHERO A ESTRUCTURA FICHERO
+	fcb_open( &file ); // ABRE FICHERO
+	VpokeFirst(dirInicio); // INIDICAR POSICIÓN DE INICIO A ESCRIBIR EN VRAM
+	for(fila = 0; fila < 24; fila ++) { // RECORRER LAS 24 FILAS DE LA PANTALLA
+		fcb_read( &file, bufferFichero, 256 );
+		for (contador = 0; contador < 256 ; contador++) VpokeNext(bufferFichero[contador]);
+	}
+	fcb_close( &file ); // CIERRA FICHERO
+} // CargaFicheroVRAM
+
 
 // TODO
 
