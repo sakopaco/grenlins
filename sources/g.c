@@ -149,7 +149,7 @@ struct escena // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
 void PintarPantallaInicialJuego (void);
 void PreparaTilesTexto 			(char tercio);
 void LimpiaTilesTexto 			(char tercio);
-void PonerColorTileLetra		(void);
+void PonerColorTileLetra		(int inicio, char tipo);
 void PonerTileLocate 			(unsigned int mapt, char fila, char col, char* texto);
 void PintarIntroFase			(void);
 void CargaFondoJuego			(void);
@@ -496,8 +496,7 @@ void PintarPantallaInicialJuego () {
 // ENTRADAS: EN QUE TERCIO PONE LOS TILES DE LAS LETRAS
 // SALIDAS: -
 void PreparaTilesTexto (char tercio) {
-	int comienzo;
-	int contadorPTT;
+	int comienzo, contador;
 
 	if (tercio == 1) {
 		comienzo = TPB0;
@@ -915,10 +914,12 @@ void PreparaTilesTexto (char tercio) {
 			comienzo = TCB2;
 		}
 	}
-
-	VpokeFirst(TCB0);
-	for (contadorPTT = 0; contadorPTT < 768; contadorPTT++) // 768 es 256 (un tercio) x 3 = nº tiles posible
-		PonerColorTileLetra();
+	
+	PonerColorTileLetra(comienzo + (32 * 8), 0); // ESPACIO
+	PonerColorTileLetra(comienzo + (45 * 8), 0); // -
+	PonerColorTileLetra(comienzo + (58 * 8), 0); // :
+	for (contador = 0; contador < 10; contador++) PonerColorTileLetra(comienzo + (48 + contador) * 8, 0); // NUMEROS
+	for (contador = 0; contador < 27; contador++) PonerColorTileLetra(comienzo + (65 + contador) * 8, 0); // LETRAS
 } // FIN PreparaTilesTexto
 
 
@@ -944,17 +945,24 @@ void LimpiaTilesTexto (char tercio) {
 
 // FUNCION: PONE COLOR EN TILE LINEA A LINEA 8 LINEAS. NO SE PASA VPOKEFIRST PORQUE LO TIENE
 //			YA DE ANTES (POR ALIGERAR)
-// ENTRADAS: -
+// ENTRADAS: 
+// inicio: DIRECCIÓN DE INICIO DE CADA CARACTER A COLOREAR EN LA TABLA DE COLORES DE LA VRAM SCREEN 2
+// tipo: NUMERO PARA (CON EL SWITCH) ELEGIR QUE COLOR LE PONEMOS A CADA CARACTER
 // SALIDAS: -
-void PonerColorTileLetra () {
-	VpokeNext(TILENEGROGRIS);
-	VpokeNext(TILENEGROGRIS);
-	VpokeNext(TILENEGROBLANCO);
-	VpokeNext(TILENEGROBLANCO);
-	VpokeNext(TILENEGROBLANCO);
-	VpokeNext(TILENEGROBLANCO);
-	VpokeNext(TILENEGROGRIS);
-	VpokeNext(TILENEGROGRIS);
+void PonerColorTileLetra (int inicio, char tipo) {
+	VpokeFirst(inicio);
+	switch(tipo) {
+		default: {
+			VpokeNext(TILENEGROGRIS);
+			VpokeNext(TILENEGROGRIS);
+			VpokeNext(TILENEGROBLANCO);
+			VpokeNext(TILENEGROBLANCO);
+			VpokeNext(TILENEGROBLANCO);
+			VpokeNext(TILENEGROBLANCO);
+			VpokeNext(TILENEGROGRIS);
+			VpokeNext(TILENEGROGRIS);
+		}
+	}
 } // FIN PonerColorTileLetra
 
 
@@ -1255,6 +1263,11 @@ void CargaFondoJuego () {
 	VpokeFirst(MAPT2);
 	for (contador = 0; contador < 255; contador++) VpokeNext(contador);
 	ShowDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
+
+PreparaTilesTexto ((char)3);
+
+//PonerTileLocate (MAPT2, 5, 5, "UN JUEGO DE PACOSOFT");
+
 }// FIN CargaFondoJuego
 
 
