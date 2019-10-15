@@ -12,6 +12,8 @@
 #define VERDADERO 1
 #define FALSO 0
 
+typedef unsigned char BYTE;
+
 // CONTANTES MSX
 #define NOSEPULSATECLA 0 // la funcion Inkey devuelve 0 si no se pulsa ninguna tecla
 //posiciones memoria para tiles SCREEN 2 (32 ancho x 24 alto)
@@ -120,56 +122,79 @@
 
 #define ESPERAINTROFASE 10 //600 POR DEFECTO
 
+
+// ESTRUCTURAS GENERICAS
+typedef struct {
+	BYTE activo;
+	BYTE tipo; // IDENTIFICADOR DEL SPRITE (ENEMIGO, PROTA PARTE SUPERIOR, PROTA PARTE INFERIOR, BALA, ETC)
+	BYTE x; // POS X
+	BYTE y; // POS Y
+	BYTE *escena; // EL PATRON DE SPRITES A MOSTRAS
+	BYTE cont_siguiente_escena; // DE N A 0 (CUANDO LLEGA A 0 CAMBIO DE ESCENA)
+	BYTE reset_contador; // N PARA EL CONTADOR
+	BYTE velocidadx; // PIXELS QUE MOVERÁ EN X EN CADA ITERACIÓN
+	BYTE velocidady; // PIXELS QUE MOVERÁ EN Y EN CADA ITERACIÓN
+} Sprites_STR;
+
+
 // VARIABLES JUEGO
 unsigned int record; // VALOR MÁXIMO DE PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA CON "RECORD")
 unsigned int puntos; // PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA A 0)
-char cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QUE CONVERTIR CON itoa
-char fase; // CADA STAGE DEL JUEGO 1-> 6
-char nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
+BYTE cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QUE CONVERTIR CON itoa
+BYTE fase; // CADA STAGE DEL JUEGO 1-> 6
+BYTE nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
+
+Sprites_STR *lista_sprites; // LISTA CON TODOS LOS SPRITES DE UNA FASE (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
+/*
+FASE 1 TIPOS:
+0: PROTA SUPERIOR
+1: PROTA INFERIOR A
+2: PROTA INFERIOR B
+*/
 
 // VARIABLES DE FUNCIONES GENERICAS
 static FCB file; // VARIABLE PARA LEER UN FICHERO
 
+// DEFINICIÓN DE SPRITES
+// SPITE PROTA 1 SUP
+static const BYTE prota1_sup[] = {
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
+};
+static const BYTE prota1_inf_a[] = {
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
+};
+static const BYTE prota1_inf_b[] = {
+	0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
+};
 
-/*
-// ESTRUCTURAS
-struct escena // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
-{
-	char BP0[256]; // PATRONES
-	char BP1[256];
-	char BP2[256];
-	char BC0[256]; // COLORES
-	char BC1[256];
-	char BC2[256];
-} fondo;
-*/
 
 // SETUP / INICIALIZACIÓN GLOBAL
 // FUNCIONES JUEGO
 void PintarPantallaInicialJuego (void);
-void PreparaTilesTexto 			(char tercio);
-void LimpiaTilesTexto 			(char tercio);
-void PonerColorTileLetra		(int inicio, char tipo);
-void PonerTileLocate 			(unsigned int mapt, char fila, char col, char* texto);
+void PreparaTilesTexto 			(BYTE tercio);
+void LimpiaTilesTexto 			(BYTE tercio);
+void PonerColorTileLetra		(int inicio, BYTE tipo);
+void PonerTileLocate 			(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
 void PintarIntroFase			(void);
 void CargaFondoJuego			(void);
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 		(void);
-char* itoa 				(int i, char b[]);
+char* itoa 				(int i, BYTE b[]);
 void  WAIT 				(int cicles);
-char  FT_RandomNumber 	(char a, char b);
+BYTE  FT_RandomNumber 	(BYTE a, BYTE b);
 void  FT_SetName		(FCB *p_fcb, const char *p_name);
-void  CargaFicheroVRAM 	(char *nombreFichero, int dirInicio);
+void  CargaFicheroVRAM 	(BYTE *nombreFichero, int dirInicio);
+
 
 // INICIO PROGRAMA
 void main(void) 
 {
 	// DEFINIR VARIABLES NO GLOBALES
-	struct escena fondo; // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
+//	struct escena fondo; // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
 
-	char finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
-	char vidas; // VIDAS DEL PROTA DE LA PARTIDA
+	BYTE finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
+	BYTE vidas; // VIDAS DEL PROTA DE LA PARTIDA
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
 	Screen(2);
@@ -206,7 +231,7 @@ void main(void)
 			switch(fase) {
 				case FASE1: {
 					// SETUP / INICIALIZACIÓN VARIABLES DE FASE
-
+					lista_sprites = (Sprites_STR *) malloc(15);
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
 					CargaFondoJuego();
@@ -441,6 +466,8 @@ void main(void)
 			}
 
 			// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
+				// LIBERA MEMORIA RESERVADA PARA SPRITES
+				free (lista_sprites);
 				// SI QUEDAN MÁS VIDAS INCREMENTA FASE
 				// SI FASE > 5 NIVEL++ FASE = 1
 
@@ -463,7 +490,7 @@ void main(void)
 // ENTRADAS: -
 // SALIDAS: -
 void PintarPantallaInicialJuego () {
-	char contador;
+	BYTE contador;
 
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
@@ -495,7 +522,7 @@ void PintarPantallaInicialJuego () {
 // FUNCION: PONE LOS TILES DE LETRAS PARA ESCRIBIR EN PANTALLA
 // ENTRADAS: EN QUE TERCIO PONE LOS TILES DE LAS LETRAS
 // SALIDAS: -
-void PreparaTilesTexto (char tercio) {
+void PreparaTilesTexto (BYTE tercio) {
 	int comienzo, contador;
 
 	if (tercio == 1) {
@@ -926,7 +953,7 @@ void PreparaTilesTexto (char tercio) {
 // FUNCION: VACIA EN EL MAPA EL TERCIO QUE SE INDIQUE, PINTO EL ESPACIO EN BLANCO EN TODA LA PANTALLA
 // ENTRADAS: TERCIO A LIMPIAR 1->3
 // SALIDAS: -
-void LimpiaTilesTexto (char tercio) {
+void LimpiaTilesTexto (BYTE tercio) {
 	int  contadorPTT,comienzo;
 
 	if (tercio == 1) {
@@ -949,7 +976,7 @@ void LimpiaTilesTexto (char tercio) {
 // inicio: DIRECCIÓN DE INICIO DE CADA CARACTER A COLOREAR EN LA TABLA DE COLORES DE LA VRAM SCREEN 2
 // tipo: NUMERO PARA (CON EL SWITCH) ELEGIR QUE COLOR LE PONEMOS A CADA CARACTER
 // SALIDAS: -
-void PonerColorTileLetra (int inicio, char tipo) {
+void PonerColorTileLetra (int inicio, BYTE tipo) {
 	VpokeFirst(inicio);
 	switch(tipo) {
 		default: {
@@ -974,9 +1001,9 @@ void PonerColorTileLetra (int inicio, char tipo) {
 // col: columna comienzo 0->31
 // texto: cadena a escribir
 // SALIDAS: -
-void PonerTileLocate (unsigned int mapt, char fila, char col, char* texto) {
-	char contador;
-	char longitud;
+void PonerTileLocate (unsigned int mapt, BYTE fila, BYTE col, BYTE* texto) {
+	BYTE contador;
+	BYTE longitud;
 
 	longitud = StrLen(texto);
 
@@ -1329,7 +1356,7 @@ void WAIT(int cicles) {
 // a: NÚMERO MINIMO
 // b: NÚMERO MAXIMO
 // SALIDAS: -
-char FT_RandomNumber (char a, char b)
+BYTE FT_RandomNumber (BYTE a, BYTE b)
 {
     return(rand()%(b-a)+a); // 
 } // FIN FT_RandomNumber
