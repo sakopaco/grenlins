@@ -112,6 +112,9 @@ typedef unsigned char BYTE;
 // CONTANTES JUEGO
 #define RECORD 500 // PUNTOS INICIALES DE RECORD
 #define VIDASINICIO 3 // VIDAS INICIALES DEL PROTA DEL JUEGO
+#define PUNTOSINICIO 0 // PUNTOS INICIALES DEL PROTA DEL JUEGO
+#define ESCENAINICIO 1 // ESCENA INICIO (PARA DEPURAR Y COMENZAR EN UNA ESCENA EN CONCRETO)
+#define NIVELINICIO 1 // ESCENA INICIO (PARA DEPURAR Y COMENZAR EN UNA ESCENA EN CONCRETO)
 
 #define FASE1 1
 #define FASE2 2
@@ -119,6 +122,7 @@ typedef unsigned char BYTE;
 #define FASE4 4
 #define FASE5 5
 #define FASE6 6
+#define FASEINICIO 1 // PARA CUANDO HAYA QUE DEPURAR, PODER EMPEZAR POR LA FASE QUE SEAN
 
 #define ESPERAINTROFASE 10 //600 POR DEFECTO
 
@@ -156,6 +160,9 @@ unsigned int puntos; // PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA A 0)
 BYTE cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QUE CONVERTIR CON itoa
 BYTE fase; // CADA STAGE DEL JUEGO 1-> 6
 BYTE nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
+BYTE vidas; // VIDAS DEL PROTA DE LA PARTIDA
+BYTE escena; // FASE DEL JUEGO (1->6)
+BYTE nivel; // LOOP DEL JUEGO (1->n)
 
 Sprites_STR *lista_sprites; // LISTA CON TODOS LOS SPRITES DE UNA FASE (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
 /*
@@ -222,13 +229,18 @@ static const BYTE grenbueno_cae[] = {
 
 // SETUP / INICIALIZACIÓN GLOBAL
 // FUNCIONES JUEGO
-void PintarPantallaInicialJuego (void);
-void PreparaTilesTexto 			(BYTE tercio);
-void LimpiaTilesTexto 			(BYTE tercio);
-void PonerColorTileLetra		(int inicio, BYTE tipo);
-void PonerTileLocate 			(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
-void PintarIntroFase			(void);
-void CargaFondoJuego			(void);
+void PintarPantallaInicialJuego 	(void);
+void PreparaTilesTexto 				(BYTE tercio);
+void LimpiaTilesTexto 				(BYTE tercio);
+void PonerColorTileLetra			(int inicio, BYTE tipo);
+void PonerTileLocate 				(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
+void PintarIntroFase				(void);
+void CargaFondoJuego				(void);
+void PonerTextosFijosZonaInf 		(void);
+void PonerTextosVidas				(void);
+void PonerTextosPuntos				(void);
+void PonerTextosNivel				(void);
+void PonerTextosEscena				(void);
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 		(void);
@@ -246,7 +258,6 @@ void main(void)
 //	struct escena fondo; // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
 
 	BYTE finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
-	BYTE vidas; // VIDAS DEL PROTA DE LA PARTIDA
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
 	Screen(2);
@@ -254,7 +265,11 @@ void main(void)
 	KeySound(FALSO);
 
 	record = RECORD;
-	puntos = 0;
+	puntos = VIDASINICIO;
+	vidas = VIDASINICIO;
+	nivel = NIVELINICIO;
+	escena = ESCENAINICIO;
+
 
 	// CONFIGURA SPRITES
 	SpriteReset();	
@@ -262,6 +277,7 @@ void main(void)
 	SpriteDouble();	
 
 	// poner patrones de sprites
+	/*
 	SetSpritePattern(0, prota1_sup_i,  32);
 	SetSpritePattern(4, prota1_sup_d,  32);
 	SetSpritePattern(8, prota1_inf_i_1,32);
@@ -272,6 +288,7 @@ void main(void)
 	SetSpritePattern(28,prota1_inf_d_3,32);
 	SetSpritePattern(32,grenb1_inf_i,  32);
 	SetSpritePattern(36,grenb1_inf_d,  32);
+	*/
 
 
 	// CARGAR GRÁFICOS Y PATRONES COMUNES
@@ -286,7 +303,8 @@ void main(void)
 		finpartida = FALSO;
 		fase = 1; 
 		nivel = 1; 
-		vidas = VIDAINICIO;
+		vidas = VIDASINICIO;
+		puntos = PUNTOSINICIO;
 
 		// LOOP JUEGO FASE
 		do {
@@ -585,7 +603,7 @@ void PintarPantallaInicialJuego () {
 } // FIN PintarPantallaInicialJuego
 
 // FUNCION: PONE LOS TILES DE LETRAS PARA ESCRIBIR EN PANTALLA
-// ENTRADAS: EN QUE TERCIO PONE LOS TILES DE LAS LETRAS
+// ENTRADAS: EN QUE TERCIO PONE LOS TILES DE LAS LETRAS 1->3
 // SALIDAS: -
 void PreparaTilesTexto (BYTE tercio) {
 	int comienzo, contador;
@@ -1376,14 +1394,74 @@ void CargaFondoJuego () {
 	for (contador = 0; contador < 255; contador++) VpokeNext(contador);
 	VpokeFirst(MAPT2);
 	for (contador = 0; contador < 255; contador++) VpokeNext(contador);
-	ShowDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
+	
 
-PreparaTilesTexto ((char)3);
+	PonerTextosFijosZonaInf();
 
-//PonerTileLocate (MAPT2, 5, 5, "UN JUEGO DE PACOSOFT");
-
+	ShowDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA Y AHORA MOSTRAMOS RESULTADO
 }// FIN CargaFondoJuego
 
+
+// FUNCION: ESCRIBE LOS TEXTOS FIJOS DE LA PARTE INFERIOR
+// ENTRADAS: -
+// SALIDAS: -
+void PonerTextosFijosZonaInf () {
+	// PONER TILES DE TEXTO EN 3º TERCIO Y EL TEXTO INICIAL
+	LimpiaTilesTexto ((BYTE)3);
+	PreparaTilesTexto ((BYTE)3);
+
+	PonerTileLocate (MAPT3, 4,  2, "VIDAS");
+	PonerTileLocate (MAPT3, 6,  2, "PUNTOS");
+	PonerTileLocate (MAPT3, 4, 23, "NIVEL");
+	PonerTileLocate (MAPT3, 6, 22, "ESCENA");
+
+	PonerTileLocate (MAPT3, 3, 13, "OOOOOO");
+	PonerTileLocate (MAPT3, 4, 13, "O    O");
+	PonerTileLocate (MAPT3, 5, 13, "O    O");
+	PonerTileLocate (MAPT3, 6, 13, "O    O");
+	PonerTileLocate (MAPT3, 7, 13, "OOOOOO");
+
+	PonerTextosPuntos();
+	PonerTextosVidas();
+	PonerTextosNivel();
+	PonerTextosEscena();
+}// FIN PonerTextosFijosZonaInf
+
+
+// FUNCION: PINTA LOS PUNTOS EN LA ZONA INFERIOR
+// ENTRADAS: -
+// SALIDAS: -
+void PonerTextosPuntos () {
+	itoa(puntos, cadena);
+	PonerTileLocate (MAPT3, 6, 9, cadena);
+}// FIN PonerTextosPuntos
+
+
+// FUNCION: PINTA LAS VIDAS EN LA ZONA INFERIOR
+// ENTRADAS: -
+// SALIDAS: -
+void PonerTextosVidas () {
+	itoa(vidas, cadena);
+	PonerTileLocate (MAPT3, 4, 9, cadena);
+}// FIN PonerTextosVidas
+
+
+// FUNCION: PINTA EL NIVEL EN LA ZONA INFERIOR
+// ENTRADAS: -
+// SALIDAS: -
+void PonerTextosNivel () {
+	itoa(nivel, cadena);
+	PonerTileLocate (MAPT3, 4, 29, cadena);
+}// FIN PonerTextosNivel
+
+
+// FUNCION: PINTA LAS ESCENA EN LA ZONA INFERIOR
+// ENTRADAS: -
+// SALIDAS: -
+void PonerTextosEscena () {
+	itoa(escena, cadena);
+	PonerTileLocate (MAPT3, 6, 29, cadena);
+}// FIN PonerTextosEscena
 
 
 // FUNCION: BLOQUEA HASTA QUE SE PULSA TECLA
