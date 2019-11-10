@@ -116,15 +116,22 @@ typedef unsigned char BYTE;
 #define ESCENAINICIO 1 // ESCENA INICIO (PARA DEPURAR Y COMENZAR EN UNA ESCENA EN CONCRETO)
 #define NIVELINICIO 1 // ESCENA INICIO (PARA DEPURAR Y COMENZAR EN UNA ESCENA EN CONCRETO)
 
-#define FASE1 1
-#define FASE2 2
-#define FASE3 3
-#define FASE4 4
-#define FASE5 5
-#define FASE6 6
-#define FASEINICIO 1 // PARA CUANDO HAYA QUE DEPURAR, PODER EMPEZAR POR LA FASE QUE SEAN
+#define ESCENA1 1
+#define VALINICIOCONTADOR1 40 // VALOR INICIO CONTADOR PARA FIN DE ESCENA 1
+#define ESCENA2 2
+#define VALINICIOCONTADOR2 40 // VALOR INICIO CONTADOR PARA FIN DE ESCENA 2
+#define ESCENA3 3
+#define VALINICIOCONTADOR3 40 // VALOR INICIO CONTADOR PARA FIN DE ESCENA 3
+#define ESCENA4 4
+#define VALINICIOCONTADOR4 40 // VALOR INICIO CONTADOR PARA FIN DE ESCENA 4
+#define ESCENA5 5
+#define VALINICIOCONTADOR5 40 // VALOR INICIO CONTADOR PARA FIN DE ESCENA 5
+#define ESCENA6 6
+#define VALINICIOCONTADOR6 40 // VALOR INICIO CONTADOR PARA FIN DE ESCENA 6
 
-#define ESPERAINTROFASE 10 //600 POR DEFECTO
+#define ESCENAINICIO 1 // PARA CUANDO HAYA QUE DEPURAR, PODER EMPEZAR POR LA ESCENA QUE SEAN
+
+#define ESPERAINTROESCENA 10 //600 POR DEFECTO
 
 
 // ESTRUCTURAS GENERICAS
@@ -158,15 +165,15 @@ typedef struct {
 unsigned int record; // VALOR MÁXIMO DE PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA CON "RECORD")
 unsigned int puntos; // PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA A 0)
 BYTE cadena[8]; // CADENA PARA PONER LOS PUNTOS / VIDAS / NIVEL Y LO QUE HAYA QUE CONVERTIR CON itoa
-BYTE fase; // CADA STAGE DEL JUEGO 1-> 6
-BYTE nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS FASES Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS FASES. VA DE 1 EN ADELANTE
+BYTE nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS ESCENAS Y SE INCREMENTA CUANDO SE SUPERAN TODAS LAS ESCENAS. VA DE 1 EN ADELANTE
 BYTE vidas; // VIDAS DEL PROTA DE LA PARTIDA
-BYTE escena; // FASE DEL JUEGO (1->6)
+BYTE escena; // ESCENA DEL JUEGO (1->6)
 BYTE nivel; // LOOP DEL JUEGO (1->n)
+BYTE valContadorDec; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE ALGUNAS ESCENAS
 
-Sprites_STR *lista_sprites; // LISTA CON TODOS LOS SPRITES DE UNA FASE (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
+Sprites_STR *lista_sprites; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
 /*
-FASE 1 TIPOS:
+ESCENA 1 TIPOS:
 0: PROTA SUPERIOR
 1: PROTA INFERIOR A
 2: PROTA INFERIOR B
@@ -234,7 +241,7 @@ void PreparaTilesTexto 				(BYTE tercio);
 void LimpiaTilesTexto 				(BYTE tercio);
 void PonerColorTileLetra			(int inicio, BYTE tipo);
 void PonerTileLocate 				(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
-void PintarIntroFase				(void);
+void PintarIntroEscena				(void);
 void CargaFondoJuego				(void);
 void PonerTextosFijosZonaInf 		(void);
 void PonerTextosVidas				(void);
@@ -301,26 +308,27 @@ void main(void)
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
 		finpartida = FALSO;
-		fase = 1; 
-		nivel = 1; 
+		nivel = NIVELINICIO; 
 		vidas = VIDASINICIO;
 		puntos = PUNTOSINICIO;
+		escena = ESCENAINICIO;
 
-		// LOOP JUEGO FASE
+		// LOOP JUEGO ESCENA
 		do {
-			// PINTAR INTRO DE FASE
-			PintarIntroFase();
+			// PINTAR INTRO DE ESCENA
+			PintarIntroEscena();
 
-			switch(fase) {
-				case FASE1: {
-					// SETUP / INICIALIZACIÓN VARIABLES DE FASE
+			switch(escena) {
+				case ESCENA1: {
+					// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
+					valContadorDec = VALINICIOCONTADOR1;
 					//lista_sprites = (Sprites_STR *) malloc(15); *****
 
-					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
+					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 					CargaFondoJuego();
 					do {} while(VERDADERO);
 
-					// PINTAR PANTALLA DE FASE
+					// PINTAR PANTALLA DE ESCENA
 					// PINTAR TEXTOS
 					// PINTAR PUNTOS + RECORD????
 					// PINTAR VIDAS ?????
@@ -329,7 +337,7 @@ void main(void)
 					// PINTAR ELEMENTOS SI APLICA
 					// PINTAR ACCESORIOS, SIAPLICA
 
-					//LOOP DENTRO FASE
+					//LOOP DENTRO ESCENA
 
 						// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -349,17 +357,17 @@ void main(void)
 
 						// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-					// FIN LOOP DENTRO FASE
+					// FIN LOOP DENTRO ESCENA
 					break;
 				}
 
-				case FASE2: {
+				case ESCENA2: {
 
-			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
+			// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 
-			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
+			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 
-			// PINTAR PANTALLA DE FASE
+			// PINTAR PANTALLA DE ESCENA
 			// PINTAR TEXTOS
 			// PINTAR PUNTOS + RECORD????
 			// PINTAR VIDAS ?????
@@ -368,7 +376,7 @@ void main(void)
 			// PINTAR ELEMENTOS SI APLICA
 			// PINTAR ACCESORIOS, SIAPLICA
 
-			//LOOP DENTRO FASE
+			//LOOP DENTRO ESCENA
 
 				// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -388,16 +396,16 @@ void main(void)
 
 				// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-			// FIN LOOP DENTRO FASE
+			// FIN LOOP DENTRO ESCENA
 					break;
 				}
 
-				case FASE3: {
-			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
+				case ESCENA3: {
+			// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 
-			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
+			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 
-			// PINTAR PANTALLA DE FASE
+			// PINTAR PANTALLA DE ESCENA
 			// PINTAR TEXTOS
 			// PINTAR PUNTOS + RECORD????
 			// PINTAR VIDAS ?????
@@ -406,7 +414,7 @@ void main(void)
 			// PINTAR ELEMENTOS SI APLICA
 			// PINTAR ACCESORIOS, SIAPLICA
 
-			//LOOP DENTRO FASE
+			//LOOP DENTRO ESCENA
 
 				// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -426,16 +434,16 @@ void main(void)
 
 				// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-			// FIN LOOP DENTRO FASE
+			// FIN LOOP DENTRO ESCENA
 					break;
 				}
 
-				case FASE4: {
-			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
+				case ESCENA4: {
+			// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 
-			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
+			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 
-			// PINTAR PANTALLA DE FASE
+			// PINTAR PANTALLA DE ESCENA
 			// PINTAR TEXTOS
 			// PINTAR PUNTOS + RECORD????
 			// PINTAR VIDAS ?????
@@ -444,7 +452,7 @@ void main(void)
 			// PINTAR ELEMENTOS SI APLICA
 			// PINTAR ACCESORIOS, SIAPLICA
 
-			//LOOP DENTRO FASE
+			//LOOP DENTRO ESCENA
 
 				// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -464,16 +472,16 @@ void main(void)
 
 				// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-			// FIN LOOP DENTRO FASE
+			// FIN LOOP DENTRO ESCENA
 					break;
 				}
 
-				case FASE5: {
-			// SETUP / INICIALIZACIÓN VARIABLES DE FASE
+				case ESCENA5: {
+			// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 
-			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
+			// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 
-			// PINTAR PANTALLA DE FASE
+			// PINTAR PANTALLA DE ESCENA
 			// PINTAR TEXTOS
 			// PINTAR PUNTOS + RECORD????
 			// PINTAR VIDAS ?????
@@ -482,7 +490,7 @@ void main(void)
 			// PINTAR ELEMENTOS SI APLICA
 			// PINTAR ACCESORIOS, SIAPLICA
 
-			//LOOP DENTRO FASE
+			//LOOP DENTRO ESCENA
 
 				// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -502,16 +510,16 @@ void main(void)
 
 				// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-			// FIN LOOP DENTRO FASE
+			// FIN LOOP DENTRO ESCENA
 					break;
 				}
 
-				case FASE6: {
-					// SETUP / INICIALIZACIÓN VARIABLES DE FASE
+				case ESCENA6: {
+					// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 
-					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE FASE)
+					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 
-					// PINTAR PANTALLA DE FASE
+					// PINTAR PANTALLA DE ESCENA
 					// PINTAR TEXTOS
 					// PINTAR PUNTOS + RECORD????
 					// PINTAR VIDAS ?????
@@ -520,7 +528,7 @@ void main(void)
 					// PINTAR ELEMENTOS SI APLICA
 					// PINTAR ACCESORIOS, SIAPLICA
 
-					//LOOP DENTRO FASE
+					//LOOP DENTRO ESCENA
 
 						// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -540,7 +548,7 @@ void main(void)
 
 						// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-					// FIN LOOP DENTRO FASE
+					// FIN LOOP DENTRO ESCENA
 					break;
 				}
 				default: {
@@ -551,10 +559,10 @@ void main(void)
 			// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 				// LIBERA MEMORIA RESERVADA PARA SPRITES
 				free (lista_sprites);
-				// SI QUEDAN MÁS VIDAS INCREMENTA FASE
-				// SI FASE > 5 NIVEL++ FASE = 1
+				// SI QUEDAN MÁS VIDAS INCREMENTA ESCENA
+				// SI ESCENA > 5 NIVEL++ ESCENA = 1
 
-		// FIN LOOP JUEGO FASE
+		// FIN LOOP JUEGO ESCENA
 		} while (!finpartida);
 		
 		// PINTAR PANTALLA/MENSAJE FIN PARTIDA
@@ -1255,12 +1263,12 @@ void PonerTileLocate (unsigned int mapt, BYTE fila, BYTE col, BYTE* texto) {
 } // FIN PintaTileTexto
 
 
-// FUNCION: PONE UN TEXTO INICIAL ANTES DE EMPEZAR CADA FASE
+// FUNCION: PONE UN TEXTO INICIAL ANTES DE EMPEZAR CADA ESCENA
 // ENTRADAS: 
-// fase: fase por la que vamos 1->6
-// nivel: de 1 en adelante (el nivel incrementa la dificultad de las fases y se incremente cuando se superan todas las fases)
+// escena: escena por la que vamos 1->6
+// nivel: de 1 en adelante (el nivel incrementa la dificultad de las escenas y se incremente cuando se superan todas las escenas)
 // SALIDAS: -
-void PintarIntroFase () {
+void PintarIntroEscena () {
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
 	PreparaTilesTexto ((char)1);
@@ -1270,15 +1278,15 @@ void PintarIntroFase () {
 	PreparaTilesTexto ((char)3);
 	LimpiaTilesTexto ((char)3);
 
-	PonerTileLocate (MAPT1, 3, 7, "FASE:");
-	itoa(fase, cadena);
+	PonerTileLocate (MAPT1, 3, 7, "ESCENA:");
+	itoa(escena, cadena);
 	PonerTileLocate (MAPT1, 3, 13, cadena);
 	PonerTileLocate (MAPT1, 3, 18, "NIVEL:");
 	itoa(nivel, cadena);
 	PonerTileLocate (MAPT1, 3, 25, cadena);
 
-	switch(fase) {
-		case FASE1: {
+	switch(escena) {
+		case ESCENA1: {
 			PonerTileLocate (MAPT2, 0, 1, "LLEGASTE DE UNA FIESTA A CASA");
 			PonerTileLocate (MAPT2, 1, 1, "Y TE QUEDASTE DORMIDO VIENDO");
 			PonerTileLocate (MAPT2, 2, 1, "LOS GREMLINS TE HAS PUESTO A");
@@ -1290,7 +1298,7 @@ void PintarIntroFase () {
 			break;
 		}
 
-		case FASE2: {
+		case ESCENA2: {
 			PonerTileLocate (MAPT2, 0, 1, "GIZMO SE HA COLADO EN EL BAÑO");
 			PonerTileLocate (MAPT2, 1, 1, "DATE PRISA EN ATRAPARLO ANTES");
 			PonerTileLocate (MAPT2, 2, 1, "DE QUE SE MOJE Y VIGILA LOS");
@@ -1298,7 +1306,7 @@ void PintarIntroFase () {
 			break;
 		}
 
-		case FASE3: {
+		case ESCENA3: {
 			PonerTileLocate (MAPT2, 0, 1, "LAS CRIAS DE GIZMO SON MUY");
 			PonerTileLocate (MAPT2, 1, 1, "JUGUETONAS. ATRAPALOS ANTES DE");
 			PonerTileLocate (MAPT2, 2, 1, "QUE LLEGUEN A LA COCINA SON");
@@ -1306,7 +1314,7 @@ void PintarIntroFase () {
 			break;
 		}
 
-		case FASE4: {
+		case ESCENA4: {
 			PonerTileLocate (MAPT2, 0, 1, "HORROR LAS CRIAS HAN ENTRADO");
 			PonerTileLocate (MAPT2, 1, 1, "EN LA COCINA. DEBES EVITAR QUE");
 			PonerTileLocate (MAPT2, 2, 1, "COMAN LAS HAMBURGUESAS A TODA");
@@ -1314,7 +1322,7 @@ void PintarIntroFase () {
 			break;
 		}
 
-		case FASE5: {
+		case ESCENA5: {
 			PonerTileLocate (MAPT2, 0, 1, "OCURRIO LO PEOR SE HAN VUELTO");
 			PonerTileLocate (MAPT2, 1, 1, "MALOS Y QUIEREN ESCAPAR DE LA");
 			PonerTileLocate (MAPT2, 2, 1, "CASA DESESPERADO NO DEBES");
@@ -1323,7 +1331,7 @@ void PintarIntroFase () {
 			break;
 		}
 
-		case FASE6: {
+		case ESCENA6: {
 			PonerTileLocate (MAPT2, 0, 1, "EL MAS MALVADO E INTELIGENTE");
 			PonerTileLocate (MAPT2, 1, 1, "SE HA QUEDADO ESCONDIDO EN TU");
 			PonerTileLocate (MAPT2, 2, 1, "HABITACION QUIERE ACABAR");
@@ -1342,11 +1350,11 @@ void PintarIntroFase () {
 
 	ShowDisplay(); // MOSTRAMOS RESULTADO
 
-	WAIT(ESPERAINTROFASE);
+	WAIT(ESPERAINTROESCENA);
 } // FIN PintaTileTexto
 
 
-// FUNCION: CARGA EL FONDO DE PANTALLA, DEPENDE DE LA FASE QUÉ FONDO CARGA
+// FUNCION: CARGA EL FONDO DE PANTALLA, DEPENDE DE LA ESCENA QUÉ FONDO CARGA
 // ENTRADAS: 
 // SALIDAS: -
 void CargaFondoJuego () {
@@ -1354,7 +1362,7 @@ void CargaFondoJuego () {
 
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// CARGAR LOS PATRONES Y COLORES
-	switch(fase) {
+	switch(escena) {
 		case 1: {
 			CargaFicheroVRAM ("ST1SC2.CHR", TPB0);
 			CargaFicheroVRAM ("ST1SC2.CLR", TCB0);
@@ -1415,17 +1423,25 @@ void PonerTextosFijosZonaInf () {
 	PonerTileLocate (MAPT3, 4, 23, "NIVEL");
 	PonerTileLocate (MAPT3, 6, 22, "ESCENA");
 
+	PonerMarcoContador();
+	PonerTextosPuntos();
+	PonerTextosVidas();
+	PonerTextosNivel();
+	PonerTextosEscena();
+	PonerTextosContador();
+}// FIN PonerTextosFijosZonaInf
+
+
+// FUNCION: PINTA EL MARCO DEL CONTADOR QUE DECREMENTA PARA FIN ESCENA
+// ENTRADAS: -
+// SALIDAS: -
+void PonerMarcoContador () {
 	PonerTileLocate (MAPT3, 3, 13, "OOOOOO");
 	PonerTileLocate (MAPT3, 4, 13, "O    O");
 	PonerTileLocate (MAPT3, 5, 13, "O    O");
 	PonerTileLocate (MAPT3, 6, 13, "O    O");
 	PonerTileLocate (MAPT3, 7, 13, "OOOOOO");
-
-	PonerTextosPuntos();
-	PonerTextosVidas();
-	PonerTextosNivel();
-	PonerTextosEscena();
-}// FIN PonerTextosFijosZonaInf
+}// FIN PonerMarcoContador
 
 
 // FUNCION: PINTA LOS PUNTOS EN LA ZONA INFERIOR
@@ -1461,6 +1477,15 @@ void PonerTextosNivel () {
 void PonerTextosEscena () {
 	itoa(escena, cadena);
 	PonerTileLocate (MAPT3, 6, 29, cadena);
+}// FIN PonerTextosEscena
+
+
+// FUNCION: PINTA EL CONTADOR A DECREMENTAR EN LA ZONA INFERIOR
+// ENTRADAS: -
+// SALIDAS: -
+void PonerTextosContador () {
+	itoa(valContadorDec, cadena);
+	PonerTileLocate (MAPT3, 5, 15, cadena);
 }// FIN PonerTextosEscena
 
 
