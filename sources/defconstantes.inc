@@ -10,6 +10,7 @@
 typedef unsigned char BYTE;
 
 // CONTANTES MSX
+#define SCREEN2 2 // VALOR SCREEN PARA FUNCION Screen(int screen)
 #define NOSEPULSATECLA 0 // la funcion Inkey devuelve 0 si no se pulsa ninguna tecla
 //posiciones memoria para tiles SCREEN 2 (32 ancho x 24 alto)
 #define TPB0 0

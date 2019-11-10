@@ -3,6 +3,7 @@
 #include <string.h>
 #include "fusion-c/header/msx_fusion.h"
 #include "fusion-c/header/io.h"
+#include "fusion-c/header/vdp_sprites.h"
 
 #include "defconstantes.inc"
 
@@ -55,6 +56,7 @@ ESCENA 1 TIPOS:
 // VARIABLES DE FUNCIONES GENERICAS
 static FCB file; // VARIABLE PARA LEER UN FICHERO
 
+// DEFINICION DE SPRITES
 #include "defsprites.inc"
 
 // SETUP / INICIALIZACIÓN GLOBAL
@@ -92,7 +94,7 @@ void main(void)
 	BYTE finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
-	Screen(2);
+	Screen(SCREEN2);
 	SetColors(COLORNEGRO,COLORNEGRO,COLORNEGRO);
 	KeySound(FALSO);
 
@@ -102,26 +104,10 @@ void main(void)
 	nivel = NIVELINICIO;
 	escena = ESCENAINICIO;
 
-
 	// CONFIGURA SPRITES
 	SpriteReset();	
 	Sprite16();
-	SpriteDouble();	
-
-	// poner patrones de sprites
-	/*
-	SetSpritePattern(0, prota1_sup_i,  32);
-	SetSpritePattern(4, prota1_sup_d,  32);
-	SetSpritePattern(8, prota1_inf_i_1,32);
-	SetSpritePattern(12,prota1_inf_i_2,32);
-	SetSpritePattern(16,prota1_inf_i_3,32);
-	SetSpritePattern(20,prota1_inf_d_1,32);
-	SetSpritePattern(24,prota1_inf_d_2,32);
-	SetSpritePattern(28,prota1_inf_d_3,32);
-	SetSpritePattern(32,grenb1_inf_i,  32);
-	SetSpritePattern(36,grenb1_inf_d,  32);
-	*/
-
+	SpriteSmall();	
 
 	// CARGAR GRÁFICOS Y PATRONES COMUNES
 
@@ -147,20 +133,53 @@ void main(void)
 				case ESCENA1: {
 					// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 					valContadorDec = VALINICIOCONTADOR1;
+
+
+
+
+
+
+
 					//lista_sprites = (Sprites_STR *) malloc(15); *****
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
-					CargaFondoJuego();
+					// PONER LOS PATRONES DE SPRITES DE ESTA ESCENA
+						SetSpritePattern((char)0,  prota1_izq_1,   (char)32);
+						SetSpritePattern((char)4,  prota1_izq_2,   (char)32);
+						SetSpritePattern((char)8,  prota1_izq_31,  (char)32);
+						SetSpritePattern((char)12, prota1_izq_32,  (char)32);
+						SetSpritePattern((char)16, prota1_izq_4,   (char)32);
+						SetSpritePattern((char)20, prota1_der_1,   (char)32);
+						SetSpritePattern((char)24, prota1_der_21,  (char)32);
+						SetSpritePattern((char)28, prota1_der_22,  (char)32);
+						SetSpritePattern((char)32, prota1_der_3,   (char)32);
+						SetSpritePattern((char)36, prota1_der_4,   (char)32);
+						SetSpritePattern((char)40, grenbueno_izq_1,(char)32);
+						SetSpritePattern((char)44, grenbueno_izq_2,(char)32);
+						SetSpritePattern((char)48, grenbueno_der_1,(char)32);
+						SetSpritePattern((char)52, grenbueno_der_2,(char)32);
+						SetSpritePattern((char)56, grenbueno_cae,  (char)32);
+					
+					// PINTAR EN PANTALLA
+  						HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
+						// PINTAR PANTALLA DE ESCENA
+						CargaFondoJuego();
+						// PINTAR TEXTOS FIJOS, PUNTOS, PINTAR, VIDAS, ETC
+						PonerTextosFijosZonaInf();
+						// PINTAR ENEMIGOS INICIALES (SI APLICA)
+						// PINTAR ELEMENTOS INICIALES (SI APLICA)
+						// PINTAR ACCESORIOS INICIALES (SI APLICA)
+						ShowDisplay(); // MOSTRAMOS UNA VEZ YA ESTÁ LA PANTALLA CONFIGURADA Y NO SE VE EL PROCESO
+
+
+						PutSprite(1, 0, 100, 100, COLORBLANCO);
+
+
 					do {} while(VERDADERO);
 
-					// PINTAR PANTALLA DE ESCENA
-					// PINTAR TEXTOS
-					// PINTAR PUNTOS + RECORD????
-					// PINTAR VIDAS ?????
 
-					// PINTAR ENEMIGOS, SI APLICA
-					// PINTAR ELEMENTOS SI APLICA
-					// PINTAR ACCESORIOS, SIAPLICA
+
+
 
 					//LOOP DENTRO ESCENA
 

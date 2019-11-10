@@ -796,7 +796,6 @@ void PintarIntroEscena () {
 void CargaFondoJuego () {
   int contador;
 
-  HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
   // CARGAR LOS PATRONES Y COLORES
   switch(escena) {
     case 1: {
@@ -838,11 +837,6 @@ void CargaFondoJuego () {
   for (contador = 0; contador < 255; contador++) VpokeNext(contador);
   VpokeFirst(MAPT2);
   for (contador = 0; contador < 255; contador++) VpokeNext(contador);
-  
-
-  PonerTextosFijosZonaInf();
-
-  ShowDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA Y AHORA MOSTRAMOS RESULTADO
 }// FIN CargaFondoJuego
 
 
