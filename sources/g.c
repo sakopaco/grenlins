@@ -63,9 +63,11 @@ typedef unsigned char BYTE;
 #define COLORGRIS 14
 #define COLORBLANCO 15
 // COLORES TILES
-#define TILENEGRONEGRO 17
-#define TILENEGROBLANCO 240
-#define TILENEGROGRIS 224
+#define TILENEGRO 17
+#define TILEBLANCO 240
+#define TILEGRIS 224
+#define TILEVERDEOSCURO 192
+#define TILEVERDECLARO 32
 
 
 // CONSTANTES TILES
@@ -108,6 +110,10 @@ typedef unsigned char BYTE;
 #define LETRA_X 88
 #define LETRA_Y 89
 #define LETRA_Z 90
+
+// COLORES LETRAS PARA FUNCION PORNER COLORES EN LETRAS
+#define COLORLETRABLANCO 0
+#define COLORLETRAVERDE 1 
 
 // CONTANTES JUEGO
 #define RECORD 500 // PUNTOS INICIALES DE RECORD
@@ -237,7 +243,7 @@ static const BYTE grenbueno_cae[] = {
 // SETUP / INICIALIZACIÓN GLOBAL
 // FUNCIONES JUEGO
 void PintarPantallaInicialJuego 	(void);
-void PreparaTilesTexto 				(BYTE tercio);
+void PreparaTilesTexto 				(BYTE tercio, BYTE color);
 void LimpiaTilesTexto 				(BYTE tercio);
 void PonerColorTileLetra			(int inicio, BYTE tipo);
 void PonerTileLocate 				(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
@@ -571,9 +577,7 @@ void main(void)
 
 	// FIN LOOP JUEGO
 	} while (VERDADERO);
-
-// FIN PROGRAMA
-}
+} // FIN PROGRAMA
 
 
 // IMPLEMENTACIÓN DE FUNCIONES
@@ -585,11 +589,11 @@ void PintarPantallaInicialJuego () {
 
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
-	PreparaTilesTexto ((char)1);
+	PreparaTilesTexto ((char)1, COLORLETRABLANCO);
 	LimpiaTilesTexto ((char)1);
-	PreparaTilesTexto ((char)2);
+	PreparaTilesTexto ((char)2, COLORLETRABLANCO);
 	LimpiaTilesTexto ((char)2);
-	PreparaTilesTexto ((char)3);
+	PreparaTilesTexto ((char)3, COLORLETRABLANCO);
 	LimpiaTilesTexto ((char)3);
 	
 	PonerTileLocate (MAPT1, 3, 8, "RECORD:");
@@ -613,7 +617,7 @@ void PintarPantallaInicialJuego () {
 // FUNCION: PONE LOS TILES DE LETRAS PARA ESCRIBIR EN PANTALLA
 // ENTRADAS: EN QUE TERCIO PONE LOS TILES DE LAS LETRAS 1->3
 // SALIDAS: -
-void PreparaTilesTexto (BYTE tercio) {
+void PreparaTilesTexto (BYTE tercio, BYTE color) {
 	int comienzo, contador;
 
 	if (tercio == 1) {
@@ -1033,11 +1037,11 @@ void PreparaTilesTexto (BYTE tercio) {
 		}
 	}
 	
-	PonerColorTileLetra(comienzo + (32 * 8), 0); // ESPACIO
-	PonerColorTileLetra(comienzo + (45 * 8), 0); // -
-	PonerColorTileLetra(comienzo + (58 * 8), 0); // :
-	for (contador = 0; contador < 10; contador++) PonerColorTileLetra(comienzo + (48 + contador) * 8, 0); // NUMEROS
-	for (contador = 0; contador < 27; contador++) PonerColorTileLetra(comienzo + (65 + contador) * 8, 0); // LETRAS
+	PonerColorTileLetra(comienzo + (32 * 8), color); // ESPACIO
+	PonerColorTileLetra(comienzo + (45 * 8), color); // -
+	PonerColorTileLetra(comienzo + (58 * 8), color); // :
+	for (contador = 0; contador < 10; contador++) PonerColorTileLetra(comienzo + (48 + contador) * 8, color); // NUMEROS
+	for (contador = 0; contador < 27; contador++) PonerColorTileLetra(comienzo + (65 + contador) * 8, color); // LETRAS
 } // FIN PreparaTilesTexto
 
 
@@ -1070,15 +1074,26 @@ void LimpiaTilesTexto (BYTE tercio) {
 void PonerColorTileLetra (int inicio, BYTE tipo) {
 	VpokeFirst(inicio);
 	switch(tipo) {
-		default: {
-			VpokeNext(TILENEGROGRIS);
-			VpokeNext(TILENEGROGRIS);
-			VpokeNext(TILENEGROBLANCO);
-			VpokeNext(TILENEGROBLANCO);
-			VpokeNext(TILENEGROBLANCO);
-			VpokeNext(TILENEGROBLANCO);
-			VpokeNext(TILENEGROGRIS);
-			VpokeNext(TILENEGROGRIS);
+		case COLORLETRAVERDE: {
+			VpokeNext(TILEVERDEOSCURO);
+			VpokeNext(TILEVERDECLARO);
+			VpokeNext(TILEVERDECLARO);
+			VpokeNext(TILEBLANCO);
+			VpokeNext(TILEBLANCO);
+			VpokeNext(TILEVERDECLARO);
+			VpokeNext(TILEVERDECLARO);
+			VpokeNext(TILEVERDEOSCURO);
+		}
+
+		case COLORLETRABLANCO: {
+			VpokeNext(TILEGRIS);
+			VpokeNext(TILEGRIS);
+			VpokeNext(TILEGRIS);
+			VpokeNext(TILEBLANCO);
+			VpokeNext(TILEBLANCO);
+			VpokeNext(TILEGRIS);
+			VpokeNext(TILEGRIS);
+			VpokeNext(TILEGRIS);
 		}
 	}
 } // FIN PonerColorTileLetra
@@ -1271,12 +1286,12 @@ void PonerTileLocate (unsigned int mapt, BYTE fila, BYTE col, BYTE* texto) {
 void PintarIntroEscena () {
 	HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 	// PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
-	PreparaTilesTexto ((char)1);
-	LimpiaTilesTexto ((char)1);
-	PreparaTilesTexto ((char)2);
-	LimpiaTilesTexto ((char)2);
-	PreparaTilesTexto ((char)3);
-	LimpiaTilesTexto ((char)3);
+	PreparaTilesTexto ((BYTE)1, COLORLETRABLANCO);
+	LimpiaTilesTexto ((BYTE)1);
+	PreparaTilesTexto ((BYTE)2, COLORLETRABLANCO);
+	LimpiaTilesTexto ((BYTE)2);
+	PreparaTilesTexto ((BYTE)3, COLORLETRABLANCO);
+	LimpiaTilesTexto ((BYTE)3);
 
 	PonerTileLocate (MAPT1, 3, 7, "ESCENA:");
 	itoa(escena, cadena);
@@ -1416,7 +1431,7 @@ void CargaFondoJuego () {
 void PonerTextosFijosZonaInf () {
 	// PONER TILES DE TEXTO EN 3º TERCIO Y EL TEXTO INICIAL
 	LimpiaTilesTexto ((BYTE)3);
-	PreparaTilesTexto ((BYTE)3);
+	PreparaTilesTexto ((BYTE)3, COLORLETRAVERDE);
 
 	PonerTileLocate (MAPT3, 4,  2, "VIDAS");
 	PonerTileLocate (MAPT3, 6,  2, "PUNTOS");
