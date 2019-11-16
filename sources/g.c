@@ -20,24 +20,26 @@ typedef struct {
 	BYTE numero_escenas; // ES POR SI UTILIZO 3 O MAS ESCENAS SABER CUANTAS USO
 	BYTE escenas_actual; // ES POR SI UTILIZO 3 O MAS ESCENAS SABER EN CUAL ESTOY
 	// EL ESPRITE MÁS COMPLEJO LLEVARÁ 3 ESCENAS PARA IZQ Y 3 PARA DER
-	BYTE *escena1i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena2i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena3i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena4i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena5i; // PARA INTERCALAR CON escena4i
-	BYTE *escena6i; // PARA INTERCALAR CON escena4i
-	BYTE *escena1d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena2d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena3d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena4d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE *escena5d; // PARA INTERCALAR CON escena2d
-	BYTE *escena6d; // PARA INTERCALAR CON escena2d
+	BYTE escena1i; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena2i; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena3i; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena4i; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena5i; // PARA INTERCALAR CON escena4i
+	BYTE escena6i; // PARA INTERCALAR CON escena4i
+	BYTE escena1d; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena2d; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena3d; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena4d; // EL PATRON DE SPRITES A MOSTRAR
+	BYTE escena5d; // PARA INTERCALAR CON escena2d
+	BYTE escena6d; // PARA INTERCALAR CON escena2d
 } Sprites_STR;
 
 // VARIABLES JUEGO
-Sprites_STR  sprites_prota; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
-Sprites_STR  sprites_malos; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
-Sprites_STR  sprites_otros; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
+static Sprites_STR sprites_prota; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
+static Sprites_STR sprites_malos; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
+static Sprites_STR sprites_otros; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
+
+
 
 // VARIABLES JUEGO
 unsigned int record; // VALOR MÁXIMO DE PUNTOS ALCANZADOS DURANTE LA SESIÓN (SE INICIALIZA CON "RECORD")
@@ -134,44 +136,47 @@ void main(void)
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 					// PONER LOS PATRONES DE SPRITES DE ESTA ESCENA
+					
 						SetSpritePattern((char)0,  prota1_izq_1,   (char)32);
 						SetSpritePattern((char)4,  prota1_izq_2,   (char)32);
-						SetSpritePattern((char)8,  prota1_izq_3,  (char)32);
+						SetSpritePattern((char)8,  prota1_izq_3,   (char)32);
 						SetSpritePattern((char)12, prota1_izq_41,  (char)32);
-						SetSpritePattern((char)16, prota1_izq_42,   (char)32);
+						SetSpritePattern((char)16, prota1_izq_42,  (char)32);
 						SetSpritePattern((char)20, prota1_der_1,   (char)32);
 						SetSpritePattern((char)24, prota1_der_21,  (char)32);
 						SetSpritePattern((char)28, prota1_der_22,  (char)32);
 						SetSpritePattern((char)32, prota1_der_3,   (char)32);
 						SetSpritePattern((char)36, prota1_der_4,   (char)32);
+				/*
 						SetSpritePattern((char)40, grenbueno_izq_1,(char)32);
 						SetSpritePattern((char)44, grenbueno_izq_2,(char)32);
 						SetSpritePattern((char)48, grenbueno_der_1,(char)32);
 						SetSpritePattern((char)52, grenbueno_der_2,(char)32);
 						SetSpritePattern((char)56, grenbueno_cae,  (char)32);
+*/
 
-						sprites_prota.activo = 1;
-						sprites_prota.x = 100;
-						sprites_prota.y = 100;
-						sprites_prota.velocidadx = 2;
-						sprites_prota.velocidady = 0;
-						sprites_prota.cont_siguiente_escena = 2;
-						sprites_prota.reset_contador = 2;
-						sprites_prota.numero_escenas = 2;
-						sprites_prota.escenas_actual = 0;
-						sprites_prota.escena1i = prota1_izq_1;
-						sprites_prota.escena2i = prota1_izq_2;
-						sprites_prota.escena3i = prota1_izq_3;
-						sprites_prota.escena4i = prota1_izq_41;
-						sprites_prota.escena5i = prota1_izq_41;
-						sprites_prota.escena6i = prota1_izq_42;
-						sprites_prota.escena1d = prota1_der_1;
-						sprites_prota.escena2d = prota1_der_21;
-						sprites_prota.escena3d = prota1_der_3;
-						sprites_prota.escena4d = prota1_der_4;
-						sprites_prota.escena5d = prota1_der_21;
-						sprites_prota.escena6d = prota1_der_22;
-
+						sprites_prota.activo = (BYTE)1;
+						sprites_prota.x = (BYTE)100;
+						sprites_prota.y = (BYTE)100;
+						sprites_prota.velocidadx = (BYTE)2;
+						sprites_prota.velocidady = (BYTE)0;
+						sprites_prota.cont_siguiente_escena = (BYTE)2;
+						sprites_prota.reset_contador = (BYTE)2;
+						sprites_prota.numero_escenas = (BYTE)2;
+						sprites_prota.escenas_actual = (BYTE)0;
+						sprites_prota.escena1i = (BYTE)0;
+						sprites_prota.escena2i = (BYTE)4;
+						sprites_prota.escena3i = (BYTE)8;
+						sprites_prota.escena4i = (BYTE)12;
+						sprites_prota.escena5i = (BYTE)12;
+						sprites_prota.escena6i = (BYTE)16;
+						sprites_prota.escena1d = (BYTE)20;
+						sprites_prota.escena2d = (BYTE)24;
+						sprites_prota.escena3d = (BYTE)32;
+						sprites_prota.escena4d = (BYTE)36;
+						sprites_prota.escena5d = (BYTE)24;
+						sprites_prota.escena6d = (BYTE)28;
+  
 
 					
 					// PINTAR EN PANTALLA
@@ -186,7 +191,11 @@ void main(void)
 						ShowDisplay(); // MOSTRAMOS UNA VEZ YA ESTÁ LA PANTALLA CONFIGURADA Y NO SE VE EL PROCESO
 
 
-						PutSprite(1, 0, 100, 100, COLORBLANCO);
+						
+						PutSprite(1, sprites_prota.escena1i, 100, 100, COLORBLANCO);
+						PutSprite(2, sprites_prota.escena2i, 100, 116, COLORBLANCO);
+						PutSprite(3, sprites_prota.escena3i, 116, 100, COLORBLANCO);
+						PutSprite(4, sprites_prota.escena4i, 116, 116, COLORBLANCO);
 
 
 					do {} while(VERDADERO);
