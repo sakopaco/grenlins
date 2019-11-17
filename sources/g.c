@@ -11,6 +11,7 @@
 // EL PROTA ES UN CONJUNTO DE 4 SPRITES (LAS PRIERNAS SON DOS), EL RESTO 1 (PUEDEN CAMBIAR SI SON ESCENAS)
 typedef struct {
 	BYTE activo;
+	BYTE direccion_mira; // LA DIRECCIÓN A LA QUE MIRA EL ESPRITE (EN PRINCIPIO SÓLO VALE PROTA): 0 IZQ - 1 DER
 	BYTE x; // POS X
 	BYTE y; // POS Y
 	BYTE velocidadx; // PIXELS QUE MOVERÁ EN X EN CADA ITERACIÓN
@@ -20,18 +21,22 @@ typedef struct {
 	BYTE numero_escenas; // ES POR SI UTILIZO 3 O MAS ESCENAS SABER CUANTAS USO
 	BYTE escenas_actual; // ES POR SI UTILIZO 3 O MAS ESCENAS SABER EN CUAL ESTOY
 	// EL ESPRITE MÁS COMPLEJO LLEVARÁ 3 ESCENAS PARA IZQ Y 3 PARA DER
-	BYTE escena1i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena2i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena3i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena4i; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena5i; // PARA INTERCALAR CON escena4i
-	BYTE escena6i; // PARA INTERCALAR CON escena4i
-	BYTE escena1d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena2d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena3d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena4d; // EL PATRON DE SPRITES A MOSTRAR
-	BYTE escena5d; // PARA INTERCALAR CON escena2d
-	BYTE escena6d; // PARA INTERCALAR CON escena2d
+	BYTE escena1; // EL PATRON DE SPRITES A MOSTRAR ARRIBA IZQ
+	BYTE escena2; // EL PATRON DE SPRITES A MOSTRAR ABAJO IZQ
+	BYTE escena3; // EL PATRON DE SPRITES A MOSTRAR ARRIBA DER
+	BYTE escena4; // EL PATRON DE SPRITES A MOSTRAR ABAJO IZQ
+	BYTE escena1i; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA IZQ
+	BYTE escena2i; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA IZQ
+	BYTE escena3i; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA IZQ
+	BYTE escena4i; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA IZQ
+	BYTE escena5i; // PARA INTERCALAR CON escena4i  CUANDO ANDA A LA IZQ
+	BYTE escena6i; // PARA INTERCALAR CON escena4i  CUANDO ANDA A LA IZQ
+	BYTE escena1d; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA DER
+	BYTE escena2d; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA DER
+	BYTE escena3d; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA DER
+	BYTE escena4d; // EL PATRON DE SPRITES A MOSTRAR CUANDO ANDA A LA DER
+	BYTE escena5d; // PARA INTERCALAR CON escena2d  CUANDO ANDA A LA DER
+	BYTE escena6d; // PARA INTERCALAR CON escena2d  CUANDO ANDA A LA DER
 } Sprites_STR;
 
 // VARIABLES JUEGO
@@ -74,6 +79,8 @@ void PonerTextosNivel				(void);
 void PonerTextosEscena				(void);
 void PonerTextosContador			(void);
 void PonerMarcoContador 			(void);
+void MueveProta						(BYTE escena, BYTE direccion);
+void FlipSpritesProta				(void);
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 		(void);
@@ -153,14 +160,19 @@ void main(void)
 */
 
 						sprites_prota.activo = (BYTE)1;
+						sprites_prota.direccion_mira = (BYTE)PROTAMIRAIZQ;
 						sprites_prota.x = (BYTE)100;
 						sprites_prota.y = (BYTE)100;
-						sprites_prota.velocidadx = (BYTE)2;
+						sprites_prota.velocidadx = (BYTE)1;
 						sprites_prota.velocidady = (BYTE)0;
-						sprites_prota.cont_siguiente_escena = (BYTE)2;
+						sprites_prota.cont_siguiente_escena = (BYTE)4;
 						sprites_prota.reset_contador = (BYTE)2;
 						sprites_prota.numero_escenas = (BYTE)2;
 						sprites_prota.escenas_actual = (BYTE)0;
+						sprites_prota.escena1  = (BYTE)0;
+						sprites_prota.escena2  = (BYTE)4;
+						sprites_prota.escena3  = (BYTE)8;
+						sprites_prota.escena4  = (BYTE)12;
 						sprites_prota.escena1i = (BYTE)0;
 						sprites_prota.escena2i = (BYTE)4;
 						sprites_prota.escena3i = (BYTE)8;
@@ -186,16 +198,18 @@ void main(void)
 						// PINTAR ELEMENTOS INICIALES (SI APLICA)
 						// PINTAR ACCESORIOS INICIALES (SI APLICA)
 						
-						PutSprite(1, sprites_prota.escena1i, BASESPRITEPROTA     , 100     , COLORBLANCO);
-						PutSprite(2, sprites_prota.escena2i, BASESPRITEPROTA     , 100 + 16, COLORBLANCO);
-						PutSprite(3, sprites_prota.escena3i, BASESPRITEPROTA + 16, 100     , COLORBLANCO);
-						PutSprite(4, sprites_prota.escena4i, BASESPRITEPROTA + 16, 100 + 16, COLORBLANCO);
+						PutSprite(1, sprites_prota.escena1, BASESPRITEPROTA     , 100     , COLORBLANCO);
+						PutSprite(2, sprites_prota.escena2, BASESPRITEPROTA     , 100 + 16, COLORBLANCO);
+						PutSprite(3, sprites_prota.escena3, BASESPRITEPROTA + 16, 100     , COLORBLANCO);
+						PutSprite(4, sprites_prota.escena4, BASESPRITEPROTA + 16, 100 + 16, COLORBLANCO);
 
 					ShowDisplay(); // MOSTRAMOS UNA VEZ YA ESTÁ LA PANTALLA CONFIGURADA Y NO SE VE EL PROCESO
 					do { //LOOP DENTRO ESCENA
 
 						// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
-				
+						// MOVIMIENTO
+						MueveProta(escena,JoystickRead(LEETECLADO));
+
 						// INICIALIZA/SPAWNEA ENEMIGOS				
 
 						// DETECCIÓN DE LIMITES DE OBJETOS MÓVILES
@@ -426,6 +440,79 @@ void main(void)
 	// FIN LOOP JUEGO
 	} while (VERDADERO);
 } // FIN PROGRAMA
+
+
+// FUNCION: ACTUALIZA LOS DATOS DE LOS SPRITES DEL PROTA Y MUESTRA AL PROTA POR PANTALLA
+// ENTRADAS: 
+// escena: LA ESCENA DEL JUEGO QUE SE TRATE (EL MOVIMIENTO DEL PROTA PUEDE VARIAR)
+// direccion: DIRECCIONES DE LA FUNCION JoystickRead (1 arriba, 3 derecha ...)
+// SALIDAS: -
+void MueveProta (BYTE escena, BYTE direccion) {
+	if (escena == 1) {
+		switch(direccion) {
+			case TIZQUIERDA: {
+				if (sprites_prota.direccion_mira == PROTAMIRADER)
+					FlipSpritesProta();
+
+				sprites_prota.x += -sprites_prota.velocidadx;
+
+				sprites_prota.cont_siguiente_escena--;
+				if (sprites_prota.cont_siguiente_escena == 0) {
+					if (sprites_prota.escena4i == sprites_prota.escena5i)
+						sprites_prota.escena4i = sprites_prota.escena6i;
+					else
+						sprites_prota.escena4i = sprites_prota.escena5i;
+
+					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
+				}
+
+				break;
+			}
+			case TDERECHA: {
+				if (sprites_prota.direccion_mira == PROTAMIRAIZQ)
+					FlipSpritesProta();
+
+				sprites_prota.x += sprites_prota.velocidadx;
+
+				sprites_prota.cont_siguiente_escena--;
+				if (sprites_prota.cont_siguiente_escena == 0) {
+					if (sprites_prota.escena2d == sprites_prota.escena5d)
+						sprites_prota.escena2d = sprites_prota.escena6d;
+					else
+						sprites_prota.escena2d = sprites_prota.escena5d;
+
+					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
+				}
+
+				break;
+			}
+		}
+	}
+
+	PutSprite(1, sprites_prota.escena1, sprites_prota.x     , sprites_prota.y     , COLORBLANCO);
+	PutSprite(2, sprites_prota.escena2, sprites_prota.x     , sprites_prota.y + 16, COLORBLANCO);
+	PutSprite(3, sprites_prota.escena3, sprites_prota.x + 16, sprites_prota.y     , COLORBLANCO);
+	PutSprite(4, sprites_prota.escena4, sprites_prota.x + 16, sprites_prota.y + 16, COLORBLANCO);
+} // FIN MueveProta
+
+
+// FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI MIRA A LA DERECHA INTERCAMBIA 
+// LOS DATOS EN LA ESTRUCTURA PARA QUE MIRE A LA IZQUIERDA
+// ENTRADAS: 
+// SALIDAS: -
+void FlipSpritesProta (void) {
+	if (sprites_prota.direccion_mira == PROTAMIRAIZQ) { // INTERCAMBIAMOS POSICIONES CON LOS DE LA DERECHA
+		sprites_prota.escena1 = sprites_prota.escena1i;
+		sprites_prota.escena2 = sprites_prota.escena2i;
+		sprites_prota.escena3 = sprites_prota.escena3i;
+		sprites_prota.escena4 = sprites_prota.escena4i;
+	} else {  // INTERCAMBIAMOS POSICIONES CON LOS DE LA IZQUIERDA
+		sprites_prota.escena1 = sprites_prota.escena1d;
+		sprites_prota.escena2 = sprites_prota.escena2d;
+		sprites_prota.escena3 = sprites_prota.escena3d;
+		sprites_prota.escena4 = sprites_prota.escena4d;
+	}
+} // FIN FlipSpritesProta
 
 #include "fungenericas.inc"
 
