@@ -49,8 +49,7 @@ BYTE nivel; // EL NIVEL INCREMENTA LA DIFICULTAD DE LAS ESCENAS Y SE INCREMENTA 
 BYTE vidas; // VIDAS DEL PROTA DE LA PARTIDA
 BYTE escena; // ESCENA DEL JUEGO (1->6)
 BYTE nivel; // LOOP DEL JUEGO (1->n)
-BYTE valContadorDec; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE ALGUNAS ESCENAS
-
+BYTE contadorEscena; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE LAS ESCENAS
 
 
 // VARIABLES DE FUNCIONES GENERICAS
@@ -89,9 +88,7 @@ void  CargaFicheroVRAM 	(BYTE *nombreFichero, int dirInicio);
 void main(void) 
 {
 	// DEFINIR VARIABLES NO GLOBALES
-//	struct escena fondo; // ESTRUCTURA PARA ALMACENAR LAS PANTALLAS DE CADA ESCENA
-
-	BYTE finpartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
+	BYTE finPartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
 	Screen(SCREEN2);
@@ -118,7 +115,7 @@ void main(void)
 
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
-		finpartida = FALSO;
+		finPartida = FALSO;
 		nivel = NIVELINICIO; 
 		vidas = VIDASINICIO;
 		puntos = PUNTOSINICIO;
@@ -132,7 +129,7 @@ void main(void)
 			switch(escena) {
 				case ESCENA1: {
 					// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
-					valContadorDec = VALINICIOCONTADOR1;
+					contadorEscena = VALINICIOCONTADOR1;
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 					// PONER LOS PATRONES DE SPRITES DE ESTA ESCENA
@@ -180,7 +177,7 @@ void main(void)
 
 					
 					// PINTAR EN PANTALLA
-  						HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
+  					HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 						// PINTAR PANTALLA DE ESCENA
 						CargaFondoJuego();
 						// PINTAR TEXTOS FIJOS, PUNTOS, PINTAR, VIDAS, ETC
@@ -188,23 +185,14 @@ void main(void)
 						// PINTAR ENEMIGOS INICIALES (SI APLICA)
 						// PINTAR ELEMENTOS INICIALES (SI APLICA)
 						// PINTAR ACCESORIOS INICIALES (SI APLICA)
-						ShowDisplay(); // MOSTRAMOS UNA VEZ YA ESTÁ LA PANTALLA CONFIGURADA Y NO SE VE EL PROCESO
-
-
 						
-						PutSprite(1, sprites_prota.escena1i, 100, 100, COLORBLANCO);
-						PutSprite(2, sprites_prota.escena2i, 100, 116, COLORBLANCO);
-						PutSprite(3, sprites_prota.escena3i, 116, 100, COLORBLANCO);
-						PutSprite(4, sprites_prota.escena4i, 116, 116, COLORBLANCO);
+						PutSprite(1, sprites_prota.escena1i, BASESPRITEPROTA     , 100     , COLORBLANCO);
+						PutSprite(2, sprites_prota.escena2i, BASESPRITEPROTA     , 100 + 16, COLORBLANCO);
+						PutSprite(3, sprites_prota.escena3i, BASESPRITEPROTA + 16, 100     , COLORBLANCO);
+						PutSprite(4, sprites_prota.escena4i, BASESPRITEPROTA + 16, 100 + 16, COLORBLANCO);
 
-
-					do {} while(VERDADERO);
-
-
-
-
-
-					//LOOP DENTRO ESCENA
+					ShowDisplay(); // MOSTRAMOS UNA VEZ YA ESTÁ LA PANTALLA CONFIGURADA Y NO SE VE EL PROCESO
+					do { //LOOP DENTRO ESCENA
 
 						// OBTENER ENTRADAS DEL JUGADOR (MOVIMIENTOS, DISPAROS, ETC)
 				
@@ -224,7 +212,7 @@ void main(void)
 
 						// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
-					// FIN LOOP DENTRO ESCENA
+					} while(contadorEscena); // FIN LOOP DENTRO ESCENA (CONTADOR ESCENA TIENDE A 0 Y VERO ES FALSO)
 					break;
 				}
 
@@ -429,7 +417,7 @@ void main(void)
 				// SI ESCENA > 5 NIVEL++ ESCENA = 1
 
 		// FIN LOOP JUEGO ESCENA
-		} while (!finpartida);
+		} while (!finPartida);
 		
 		// PINTAR PANTALLA/MENSAJE FIN PARTIDA
 			// SI JUEGO DE LOOPS SÓLO GAME OVER

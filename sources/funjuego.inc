@@ -914,6 +914,6 @@ void PonerTextosEscena () {
 // ENTRADAS: -
 // SALIDAS: -
 void PonerTextosContador () {
-  itoa(valContadorDec, cadena);
+  itoa(contadorEscena, cadena);
   PonerTileLocate (MAPT3, 5, 15, cadena);
 }// FIN PonerTextosEscena
