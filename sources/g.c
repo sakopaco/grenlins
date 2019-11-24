@@ -166,7 +166,7 @@ void main(void)
 						sprites_prota.velocidadx = (BYTE)1;
 						sprites_prota.velocidady = (BYTE)0;
 						sprites_prota.cont_siguiente_escena = (BYTE)4;
-						sprites_prota.reset_contador = (BYTE)2;
+						sprites_prota.reset_contador = (BYTE)4;
 						sprites_prota.numero_escenas = (BYTE)2;
 						sprites_prota.escenas_actual = (BYTE)0;
 						sprites_prota.escena1  = (BYTE)0;
@@ -458,14 +458,13 @@ void MueveProta (BYTE escena, BYTE direccion) {
 
 				sprites_prota.cont_siguiente_escena--;
 				if (sprites_prota.cont_siguiente_escena == 0) {
+					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
+				
 					if (sprites_prota.escena4i == sprites_prota.escena5i)
 						sprites_prota.escena4i = sprites_prota.escena6i;
 					else
 						sprites_prota.escena4i = sprites_prota.escena5i;
-
-					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
 				}
-
 				break;
 			}
 			case TDERECHA: {
@@ -476,14 +475,13 @@ void MueveProta (BYTE escena, BYTE direccion) {
 
 				sprites_prota.cont_siguiente_escena--;
 				if (sprites_prota.cont_siguiente_escena == 0) {
+					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
+				
 					if (sprites_prota.escena2d == sprites_prota.escena5d)
 						sprites_prota.escena2d = sprites_prota.escena6d;
 					else
 						sprites_prota.escena2d = sprites_prota.escena5d;
-
-					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
 				}
-
 				break;
 			}
 		}
@@ -502,15 +500,17 @@ void MueveProta (BYTE escena, BYTE direccion) {
 // SALIDAS: -
 void FlipSpritesProta (void) {
 	if (sprites_prota.direccion_mira == PROTAMIRAIZQ) { // INTERCAMBIAMOS POSICIONES CON LOS DE LA DERECHA
-		sprites_prota.escena1 = sprites_prota.escena1i;
-		sprites_prota.escena2 = sprites_prota.escena2i;
-		sprites_prota.escena3 = sprites_prota.escena3i;
-		sprites_prota.escena4 = sprites_prota.escena4i;
-	} else {  // INTERCAMBIAMOS POSICIONES CON LOS DE LA IZQUIERDA
 		sprites_prota.escena1 = sprites_prota.escena1d;
 		sprites_prota.escena2 = sprites_prota.escena2d;
 		sprites_prota.escena3 = sprites_prota.escena3d;
 		sprites_prota.escena4 = sprites_prota.escena4d;
+		sprites_prota.direccion_mira = PROTAMIRADER;
+	} else {  // INTERCAMBIAMOS POSICIONES CON LOS DE LA IZQUIERDA	
+		sprites_prota.escena1 = sprites_prota.escena1i;
+		sprites_prota.escena2 = sprites_prota.escena2i;
+		sprites_prota.escena3 = sprites_prota.escena3i;
+		sprites_prota.escena4 = sprites_prota.escena4i;
+		sprites_prota.direccion_mira = PROTAMIRAIZQ;
 	}
 } // FIN FlipSpritesProta
 
@@ -520,5 +520,5 @@ void FlipSpritesProta (void) {
 
 // TODO
 
-//poner sprites en array + reserva memoria
+// que mueva bien las piernas repasar lo de las escenas
 
