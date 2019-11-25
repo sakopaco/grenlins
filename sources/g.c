@@ -18,8 +18,6 @@ typedef struct {
 	BYTE velocidady; // PIXELS QUE MOVERÁ EN Y EN CADA ITERACIÓN
 	BYTE cont_siguiente_escena; // DE N A 0 (CUANDO LLEGA A 0 CAMBIO DE ESCENA)
 	BYTE reset_contador; // N PARA EL CONTADOR
-	BYTE numero_escenas; // ES POR SI UTILIZO 3 O MAS ESCENAS SABER CUANTAS USO
-	BYTE escenas_actual; // ES POR SI UTILIZO 3 O MAS ESCENAS SABER EN CUAL ESTOY
 	// EL ESPRITE MÁS COMPLEJO LLEVARÁ 3 ESCENAS PARA IZQ Y 3 PARA DER
 	BYTE escena1; // EL PATRON DE SPRITES A MOSTRAR ARRIBA IZQ
 	BYTE escena2; // EL PATRON DE SPRITES A MOSTRAR ABAJO IZQ
@@ -118,7 +116,8 @@ void main(void)
 	// LOOP JUEGO
 	do { 
 		// PINTAR PANTALLA INICIAL DE JUEGO
-		PintarPantallaInicialJuego();
+		//#######  comentado para ahorrar tiempo
+		//PintarPantallaInicialJuego();
 
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
@@ -131,7 +130,9 @@ void main(void)
 		// LOOP JUEGO ESCENA
 		do {
 			// PINTAR INTRO DE ESCENA
-			PintarIntroEscena();
+			
+			//#######  comentado para ahorrar tiempo
+			//PintarIntroEscena();
 
 			switch(escena) {
 				case ESCENA1: {
@@ -165,10 +166,8 @@ void main(void)
 						sprites_prota.y = (BYTE)100;
 						sprites_prota.velocidadx = (BYTE)1;
 						sprites_prota.velocidady = (BYTE)0;
-						sprites_prota.cont_siguiente_escena = (BYTE)4;
-						sprites_prota.reset_contador = (BYTE)4;
-						sprites_prota.numero_escenas = (BYTE)2;
-						sprites_prota.escenas_actual = (BYTE)0;
+						sprites_prota.cont_siguiente_escena = (BYTE)2;
+						sprites_prota.reset_contador = (BYTE)2;
 						sprites_prota.escena1  = (BYTE)0;
 						sprites_prota.escena2  = (BYTE)4;
 						sprites_prota.escena3  = (BYTE)8;
@@ -448,6 +447,10 @@ void main(void)
 // direccion: DIRECCIONES DE LA FUNCION JoystickRead (1 arriba, 3 derecha ...)
 // SALIDAS: -
 void MueveProta (BYTE escena, BYTE direccion) {
+	
+
+	WAIT(1); // PRESCINDIBLE SEGÚN SE DESARROLLE EL PROGRAMA
+
 	if (escena == 1) {
 		switch(direccion) {
 			case TIZQUIERDA: {
@@ -455,15 +458,14 @@ void MueveProta (BYTE escena, BYTE direccion) {
 					FlipSpritesProta();
 
 				sprites_prota.x += -sprites_prota.velocidadx;
-
 				sprites_prota.cont_siguiente_escena--;
 				if (sprites_prota.cont_siguiente_escena == 0) {
-					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
+					sprites_prota.cont_siguiente_escena = sprites_prota.reset_contador;
 				
-					if (sprites_prota.escena4i == sprites_prota.escena5i)
-						sprites_prota.escena4i = sprites_prota.escena6i;
+					if (sprites_prota.escena4 == sprites_prota.escena5i)
+						sprites_prota.escena4 = sprites_prota.escena6i;
 					else
-						sprites_prota.escena4i = sprites_prota.escena5i;
+						sprites_prota.escena4 = sprites_prota.escena5i;
 				}
 				break;
 			}
@@ -475,12 +477,12 @@ void MueveProta (BYTE escena, BYTE direccion) {
 
 				sprites_prota.cont_siguiente_escena--;
 				if (sprites_prota.cont_siguiente_escena == 0) {
-					sprites_prota.cont_siguiente_escena = sprites_prota.numero_escenas;
+					sprites_prota.cont_siguiente_escena = sprites_prota.reset_contador;
 				
-					if (sprites_prota.escena2d == sprites_prota.escena5d)
-						sprites_prota.escena2d = sprites_prota.escena6d;
+					if (sprites_prota.escena2 == sprites_prota.escena5d)
+						sprites_prota.escena2 = sprites_prota.escena6d;
 					else
-						sprites_prota.escena2d = sprites_prota.escena5d;
+						sprites_prota.escena2 = sprites_prota.escena5d;
 				}
 				break;
 			}
