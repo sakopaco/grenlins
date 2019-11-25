@@ -79,6 +79,7 @@ void PonerTextosContador			(void);
 void PonerMarcoContador 			(void);
 void MueveProta						(BYTE escena, BYTE direccion);
 void FlipSpritesProta				(void);
+BYTE SuperaLimitesProtaEsc1			(void);
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 		(void);
@@ -457,8 +458,13 @@ void MueveProta (BYTE escena, BYTE direccion) {
 				if (sprites_prota.direccion_mira == PROTAMIRADER)
 					FlipSpritesProta();
 
-				sprites_prota.x += -sprites_prota.velocidadx;
+				if(SuperaLimitesProtaEsc1() == FALSO) // SI ES VERDADERO SUPERA LIMITES Y NO MOVEMOS SPRITE PROTA
+					sprites_prota.x += -sprites_prota.velocidadx;
+				else
+					sprites_prota.x = LIMITEPROESC1IZQ;
+
 				sprites_prota.cont_siguiente_escena--;
+
 				if (sprites_prota.cont_siguiente_escena == 0) {
 					sprites_prota.cont_siguiente_escena = sprites_prota.reset_contador;
 				
@@ -469,13 +475,18 @@ void MueveProta (BYTE escena, BYTE direccion) {
 				}
 				break;
 			}
+
 			case TDERECHA: {
 				if (sprites_prota.direccion_mira == PROTAMIRAIZQ)
 					FlipSpritesProta();
-
-				sprites_prota.x += sprites_prota.velocidadx;
+				
+				if(SuperaLimitesProtaEsc1() == FALSO) // SI ES VERDADERO SUPERA LIMITES Y NO MOVEMOS SPRITE PROTA
+					sprites_prota.x += sprites_prota.velocidadx;
+				else
+					sprites_prota.x = LIMITEPROESC1DER;
 
 				sprites_prota.cont_siguiente_escena--;
+
 				if (sprites_prota.cont_siguiente_escena == 0) {
 					sprites_prota.cont_siguiente_escena = sprites_prota.reset_contador;
 				
@@ -496,9 +507,9 @@ void MueveProta (BYTE escena, BYTE direccion) {
 } // FIN MueveProta
 
 
-// FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI MIRA A LA DERECHA INTERCAMBIA 
+// FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI EL PROTA MIRA A LA DERECHA O LA IZQ (sprites_prota.direccion_mira = PROTAMIRAIZQ o PROTAMIRADER)
 // LOS DATOS EN LA ESTRUCTURA PARA QUE MIRE A LA IZQUIERDA
-// ENTRADAS: 
+// ENTRADAS: - (SE PODRÍA HABER PASADO sprites_prota.direccion_mira PERO APROVECHO QUE ES GLOBAL)
 // SALIDAS: -
 void FlipSpritesProta (void) {
 	if (sprites_prota.direccion_mira == PROTAMIRAIZQ) { // INTERCAMBIAMOS POSICIONES CON LOS DE LA DERECHA
@@ -515,6 +526,21 @@ void FlipSpritesProta (void) {
 		sprites_prota.direccion_mira = PROTAMIRAIZQ;
 	}
 } // FIN FlipSpritesProta
+
+// FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI NO SUPERA LOS LIMITES MANDO FALSO (0) Y EN CASO CONTRARIO VERDADERO (0)
+// ENTRADAS: - (SE PODRÍA HABER PASADO sprites_prota.direccion_mira PERO APROVECHO QUE ES GLOBAL)
+// SALIDAS: SI NO SUPERA LOS LIMITES MANDO FALSO (0) Y EN CASO CONTRARIO VERDADERO (0)
+BYTE SuperaLimitesProtaEsc1 (void) {
+	if (sprites_prota.direccion_mira == PROTAMIRAIZQ) {
+		if (sprites_prota.x <= LIMITEPROESC1IZQ)
+			return VERDADERO;
+	} else {
+		if (sprites_prota.x >= LIMITEPROESC1DER)
+			return VERDADERO;
+	}
+
+	return FALSO;
+} // FIN SuperaLimitesProtaEsc1
 
 #include "fungenericas.inc"
 
