@@ -10,7 +10,8 @@
 // ESTRUCTURAS GENERICAS
 // EL PROTA ES UN CONJUNTO DE 4 SPRITES (LAS PRIERNAS SON DOS), EL RESTO 1 (PUEDEN CAMBIAR SI SON ESCENAS)
 typedef struct {
-	BYTE activo;
+	BYTE tipo; // SE UTILIZA SOBRE TODO CON LOS PERSONAJES QUE NO SON EL PROTA U OBJETO QUE SE MUEVEN
+	BYTE activo; // SE UTILIZA SOBRE TODO CON LOS PERSONAJES QUE NO SON EL PROTA U OBJETO QUE SE MUEVEN
 	BYTE direccion_mira; // LA DIRECCIÓN A LA QUE MIRA EL ESPRITE (EN PRINCIPIO SÓLO VALE PROTA): 0 IZQ - 1 DER
 	BYTE x; // POS X
 	BYTE y; // POS Y
@@ -39,9 +40,7 @@ typedef struct {
 
 // VARIABLES JUEGO
 static Sprites_STR sprites_prota; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
-static Sprites_STR sprites_malos; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
-static Sprites_STR sprites_otros; // LISTA CON TODOS LOS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES)
-
+static Sprites_STR* sprites_otros; // LISTA CON LOS OTROS SPRITES DE UNA ESCENA (GLOBAL PARA NO TENER QUE PASARLA ENTRE FUNCIONES) // SE EMPLEARÁN LISTAS PARA CONTROLARLOS
 
 
 // VARIABLES JUEGO
@@ -118,7 +117,7 @@ void main(void)
 	do { 
 		// PINTAR PANTALLA INICIAL DE JUEGO
 		//#######  comentado para ahorrar tiempo
-		//PintarPantallaInicialJuego();
+		PintarPantallaInicialJuego();
 
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
@@ -133,7 +132,7 @@ void main(void)
 			// PINTAR INTRO DE ESCENA
 			
 			//#######  comentado para ahorrar tiempo
-			//PintarIntroEscena();
+			PintarIntroEscena();
 
 			switch(escena) {
 				case ESCENA1: {
@@ -152,14 +151,13 @@ void main(void)
 						SetSpritePattern((char)24, prota1_der_21,  (char)32);
 						SetSpritePattern((char)28, prota1_der_22,  (char)32);
 						SetSpritePattern((char)32, prota1_der_3,   (char)32);
-						SetSpritePattern((char)36, prota1_der_4,   (char)32);
-				/*
+						SetSpritePattern((char)36, prota1_der_4,   (char)32);				
 						SetSpritePattern((char)40, grenbueno_izq_1,(char)32);
 						SetSpritePattern((char)44, grenbueno_izq_2,(char)32);
 						SetSpritePattern((char)48, grenbueno_der_1,(char)32);
 						SetSpritePattern((char)52, grenbueno_der_2,(char)32);
 						SetSpritePattern((char)56, grenbueno_cae,  (char)32);
-*/
+
 
 						sprites_prota.activo = (BYTE)1;
 						sprites_prota.direccion_mira = (BYTE)PROTAMIRAIZQ;
@@ -187,7 +185,9 @@ void main(void)
 						sprites_prota.escena6d = (BYTE)28;
   
 
-					
+						sprites_otros = (Sprites_STR *) malloc(3); // SE RESERVA MEMORIA POARA DOS SPRITES GREMLIN BUENO ANDANDO O CAYENDO (2) EN ESTA ESCENA Y OBJETO QUE PUEDE CAER (1)
+
+
 					// PINTAR EN PANTALLA
   					HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
 						// PINTAR PANTALLA DE ESCENA
@@ -227,6 +227,8 @@ void main(void)
 						// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
 
 					} while(contadorEscena); // FIN LOOP DENTRO ESCENA (CONTADOR ESCENA TIENDE A 0 Y VERO ES FALSO)
+
+					free(sprites_otros); // SE LIBERA LA MEMORIA RESERVADA EN ESTA ESCENA POR ESPRITES QUE NO SON EL PROTA
 					break;
 				}
 
@@ -448,7 +450,6 @@ void main(void)
 // direccion: DIRECCIONES DE LA FUNCION JoystickRead (1 arriba, 3 derecha ...)
 // SALIDAS: -
 void MueveProta (BYTE escena, BYTE direccion) {
-	
 
 	WAIT(1); // PRESCINDIBLE SEGÚN SE DESARROLLE EL PROGRAMA
 
