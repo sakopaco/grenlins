@@ -51,14 +51,14 @@ void WAIT(int cicles) {
 } // FIN WAIT
 
 
+//????????????????????????????????????  no está fina... entre 0 y 1 no va... repasar
 // FUNCION: DEVUELVE UN NUMERO ALEATORIO ENTRE A Y B-1 (EN PRINCIPIO CHAR CON LO QUE SE TRABAJA COMO MUCHO A 255)
 // ENTRADAS:
 // a: NÚMERO MINIMO
 // b: NÚMERO MAXIMO
 // SALIDAS: -
-BYTE FT_RandomNumber (BYTE a, BYTE b)
-{
-    return(rand()%(b-a)+a); // 
+BYTE FT_RandomNumber (BYTE a, BYTE b) {
+    return (BYTE)(rand()%(b-a)+a); // 
 } // FIN FT_RandomNumber
 
 
@@ -92,7 +92,7 @@ void FT_SetName( FCB *p_fcb, const char *p_name ) {
 // SALIDAS:
 void CargaFicheroVRAM (char *nombreFichero, int dirInicio) {
 	int fila, contador;
-	unsigned char bufferFichero[256]; // TODOS LOS TILES DE UNA FILA. NO SÉ DE DONDE SALE EL 256 >8( DEBERÍA SER 32 PERO SÓLO FUNCIONA CON 256 :_(
+	unsigned char bufferFichero[256]; // TODOS LOS TILES DE UNA FILA. (32 tiles * 8 filas cada tile = 256 lecturas de unsigned int o char)
 
 	FT_SetName( &file, nombreFichero ); // INDICAR NOMBRE FICHERO A ESTRUCTURA FICHERO
 	fcb_open( &file ); // ABRE FICHERO
