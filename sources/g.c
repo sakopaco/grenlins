@@ -82,6 +82,7 @@ void PonerMarcoContador 			(void);
 void inicializaSpriteProta			(BYTE escena);
 void inicializaSpriteEnemigo		(BYTE escena, Sprites_STR* enemigo);
 void MueveProta						(BYTE escena, BYTE direccion);
+void MueveEnemigo					(BYTE escena, Sprites_STR* enemigo);
 void FlipSpritesProta				(void);
 BYTE SuperaLimitesProtaEsc1			(void);
 
@@ -194,53 +195,23 @@ void main(void)
 						// MOVIMIENTO
 						MueveProta(escena,JoystickRead(LEETECLADO));
 
-						// INICIALIZA/SPAWMEA/MUEVE ENEMIGOS
-						if (sprites_otros[0].activo == FALSO) { // INICIALIZA/SPAWMEA
-							sprites_otros[0].activo = VERDADERO;
+						if (sprites_otros[0].activo == VERDADERO) {
+							MueveEnemigo(escena, sprites_otros);	
+						} else {
+							// INICIALIZA/SPAWMEA/MUEVE ENEMIGOS
+							sprites_otros[0].activo = (BYTE)VERDADERO;
 							sprites_otros[0].destinoX = (BYTE)FT_RandomNumber((BYTE)BASESPRITEGRENHORIZQ, (BYTE)BASESPRITEGRENHORDER);
 							if(FT_RandomNumber((BYTE)0, (BYTE)2) == (BYTE)1) {
-								sprites_otros[0].direccionMira = MIRADER;
-								sprites_otros[0].x = BASESPRITEGRENHORDER;
+								sprites_otros[0].direccionMira = (BYTE)MIRADER;
+								sprites_otros[0].x = (BYTE)BASESPRITEGRENHORIZQ;
 								sprites_otros[0].escena1 = sprites_otros[0].escena1d;
 							} else {
-								sprites_otros[0].direccionMira = MIRAIZQ;
-								sprites_otros[0].x = BASESPRITEGRENHORIZQ;
+								sprites_otros[0].direccionMira = (BYTE)MIRAIZQ;
+								sprites_otros[0].x = (BYTE)BASESPRITEGRENHORDER;
 								sprites_otros[0].escena1 = sprites_otros[0].escena1i;
 							}
 							sprites_otros[0].y = BASESPRITEGRENVER;
-						} else { // MUEVE ENEMIGOS
-							if (sprites_otros[0].direccionMira == MIRADER) {
-								sprites_otros[0].x += sprites_otros[0].velocidadX;
-							} else {
-								sprites_otros[0].x += -sprites_otros[0].velocidadX;
-							}
 						}
-
-						// DETECCIÓN DE LIMITES DE OBJETOS MÓVILES
-					
-						// DETECCIÓN DE COLISIONES
-					
-						// ACTUALIZA VARIABLES DE ANIMACIONES/ ACCESORIOS
-					
-						// DIBUJAR CAMBIOS EN PANTALLA
-							// PINTAR/ACTUALIZAR ENEMIGOS, SI APLICA
-							if (sprites_otros[0].activo == VERDADERO) {
-								PutSprite(sprites_otros[0].plano, sprites_otros[0].escena1, sprites_otros[0].x, sprites_otros[0].y, COLORROJOOSCURO);
-
-
-								if (sprites_otros[0].direccionMira == MIRADER) {
-									if (sprites_otros[0].x > sprites_otros[0].destinoX)
-										sprites_otros[0].activo = FALSO;
-								} else {
-									if (sprites_otros[0].x < sprites_otros[0].destinoX)
-										sprites_otros[0].activo = FALSO;
-								}
-
-
-							}
-
-
-
 
 
 /* // DEJO ESTO COMENTADO PORQUE AUNQUE NO SERÁ DE UTILIDAD EN LA ESCENA 1 ES LA BASE PARA EL RESTO DE ESCENAS CON MÁS DE UN ENEMIGO (PARA COPIARLO MÁS TARDE)
@@ -250,6 +221,13 @@ void main(void)
 								}
 							}
 */
+							
+
+						// DETECCIÓN DE COLISIONES
+					
+						// ACTUALIZA VARIABLES DE ANIMACIONES/ ACCESORIOS
+					
+						// DIBUJAR CAMBIOS EN PANTALLA
 							// PINTAR/ACTUALIZAR ELEMENTOS SI APLICA
 							// PINTAR/ACTUALIZAR ACCESORIOS, SIAPLICA
 							// ACTUALIZA ANIMACIONES/ ACCESORIOS
@@ -528,10 +506,10 @@ void inicializaSpriteEnemigo (BYTE escena, Sprites_STR* enemigo) {
 			enemigo->resetContador = (BYTE)2;
 			enemigo->plano = (BYTE)5;
 			enemigo->escena1 = (BYTE)48;
-			enemigo->escena1i = (BYTE)48;
-			enemigo->escena2i = (BYTE)52;
-			enemigo->escena1d = (BYTE)40;
-			enemigo->escena2d = (BYTE)44;
+			enemigo->escena1i = (BYTE)40;
+			enemigo->escena2i = (BYTE)44;
+			enemigo->escena1d = (BYTE)48;
+			enemigo->escena2d = (BYTE)52;
 			enemigo->escena5d = (BYTE)56; // grenbueno_cae
 			enemigo->escena6d = (BYTE)60; // grenbueno_tiraobj
 			break;
@@ -602,6 +580,52 @@ void MueveProta (BYTE escena, BYTE direccion) {
 	PutSprite(3, sprites_prota.escena3, sprites_prota.x + 16, sprites_prota.y     , COLORBLANCO);
 	PutSprite(4, sprites_prota.escena4, sprites_prota.x + 16, sprites_prota.y + 16, COLORBLANCO);
 } // FIN MueveProta
+
+
+// FUNCION: ACTUALIZA LOS DATOS DE LOS SPRITES DEL ENEMIGO Y MUESTRA AL ENEMIGO POR PANTALLA
+// ENTRADAS: 
+// escena: LA ESCENA DEL JUEGO QUE SE TRATE (EL MOVIMIENTO DEL PROTA PUEDE VARIAR)
+// enemigo: ESTRUCTURA DEL SPRITE DEL ENEMIGO
+// SALIDAS: -
+void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
+	switch(escena) {
+		case 1: {
+			switch(enemigo->tipo) {
+				case 1: { // GREMBLIN BUENO	
+					if (enemigo->direccionMira == (BYTE)MIRADER)
+						enemigo->x += enemigo->velocidadX;
+					else
+						enemigo->x -= enemigo->velocidadX;
+
+					if (enemigo->direccionMira == (BYTE)MIRADER) {
+						if (enemigo->x >= enemigo->destinoX)
+							enemigo->activo = FALSO;
+						else
+							if (enemigo->escena1 == enemigo->escena1d)
+								enemigo->escena1 = enemigo->escena2d;
+							else
+								enemigo->escena1 = enemigo->escena1d;
+					} else {
+						if (enemigo->x <= enemigo->destinoX)
+							enemigo->activo = FALSO;
+						else
+							if (enemigo->escena1 == enemigo->escena1i)
+								enemigo->escena1 = enemigo->escena2i;
+							else
+								enemigo->escena1 = enemigo->escena1i; // ****************************** MODIFICAR SPRITES PRA QUE SE NOTE MÁS QUE ESTÁ ANDANDO
+					}
+
+					PutSprite(enemigo->plano, enemigo->escena1, enemigo->x, enemigo->y, COLORROJOOSCURO);
+
+					break;
+				}
+			}
+
+			break;
+		}
+	}
+} // FIN MueveEnemigo
+
 
 
 // FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI EL PROTA MIRA A LA DERECHA O LA IZQ (sprites_prota.direccionMira = PROTAMIRAIZQ o PROTAMIRADER)
