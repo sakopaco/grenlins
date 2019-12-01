@@ -90,7 +90,7 @@ BYTE SuperaLimitesProtaEsc1			(void);
 void  PulsaEspacio 		(void);
 char* itoa 				(int i, BYTE b[]);
 void  WAIT 				(int cicles);
-BYTE  FT_RandomNumber 	(BYTE a, BYTE b);
+BYTE  RandomNumber 		(BYTE a, BYTE b);
 void  FT_SetName		(FCB *p_fcb, const char *p_name);
 void  CargaFicheroVRAM 	(BYTE *nombreFichero, int dirInicio);
 
@@ -200,8 +200,8 @@ void main(void)
 						} else {
 							// INICIALIZA/SPAWMEA/MUEVE ENEMIGOS
 							sprites_otros[0].activo = (BYTE)VERDADERO;
-							sprites_otros[0].destinoX = (BYTE)FT_RandomNumber((BYTE)BASESPRITEGRENHORIZQ, (BYTE)BASESPRITEGRENHORDER);
-							if(FT_RandomNumber((BYTE)0, (BYTE)2) == (BYTE)1) {
+							sprites_otros[0].destinoX = (BYTE)RandomNumber((BYTE)BASESPRITEGRENHORIZQ, (BYTE)BASESPRITEGRENHORDER);
+							if(RandomNumber((BYTE)0, (BYTE)2) == (BYTE)1) {
 								sprites_otros[0].direccionMira = (BYTE)MIRADER;
 								sprites_otros[0].x = (BYTE)BASESPRITEGRENHORIZQ;
 								sprites_otros[0].escena1 = sprites_otros[0].escena1d;
@@ -465,7 +465,8 @@ void inicializaSpriteEnemigo (BYTE escena, Sprites_STR* enemigo) {
 			enemigo->tipo = (BYTE)1; // GREMBLIN BUENO
 			enemigo->activo = (BYTE)FALSO;
 			enemigo->direccionMira = (BYTE)MIRAIZQ;
-			enemigo->velocidadX = (BYTE)VELPROTA1;
+			enemigo->velocidadX = (BYTE)VELGRENHOR1;
+			enemigo->velocidadY = (BYTE)VELGRENVER1;
 			enemigo->contSiguienteEscena = (BYTE)6;
 			enemigo->resetContador = (BYTE)6;
 			enemigo->plano = (BYTE)5;
@@ -492,31 +493,50 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 	switch(escena) {
 		case 1: {
 			switch(enemigo->tipo) {
-				case 1: { // GREMBLIN BUENO	
+				case 1: { // GREMBLIN BUENO	ANDANDO IZQ O DER
 					if (enemigo->direccionMira == (BYTE)MIRADER)
 						enemigo->x += enemigo->velocidadX;
 					else
 						enemigo->x -= enemigo->velocidadX;
 
 					if (enemigo->direccionMira == (BYTE)MIRADER) {
-						if (enemigo->x >= enemigo->destinoX)
-							enemigo->activo = FALSO;
-						else
+						if (enemigo->x >= enemigo->destinoX) {
+							enemigo->tipo = (BYTE)2; // GREMLIN CAYENDO O MACETA
+							if(RandomNumber((BYTE)0, (BYTE)100) <= (BYTE)(PROBOBJETOESC1 + (nivel * 5))) {
+								enemigo->escena1 = enemigo->escena5d;
+							} else {
+								enemigo->escena1 = enemigo->escena6d;
+							}
+						} else
 							if (enemigo->escena1 == enemigo->escena1d)
 								enemigo->escena1 = enemigo->escena2d;
 							else
 								enemigo->escena1 = enemigo->escena1d;
 					} else {
-						if (enemigo->x <= enemigo->destinoX)
-							enemigo->activo = FALSO;
-						else
+						if (enemigo->x <= enemigo->destinoX) {
+							enemigo->tipo = (BYTE)2; // GREMLIN CAYENDO O MACETA
+							if(RandomNumber((BYTE)0, (BYTE)100) <= (BYTE)(PROBOBJETOESC1 + (nivel * 5))) {
+								enemigo->escena1 = enemigo->escena5d;
+							} else {
+								enemigo->escena1 = enemigo->escena6d;
+							}
+						} else
 							if (enemigo->escena1 == enemigo->escena1i)
 								enemigo->escena1 = enemigo->escena2i;
 							else
-								enemigo->escena1 = enemigo->escena1i; // ****************************** MODIFICAR SPRITES PRA QUE SE NOTE MÁS QUE ESTÁ ANDANDO
+								enemigo->escena1 = enemigo->escena1i;
 					}
 
-					PutSprite(enemigo->plano, enemigo->escena1, enemigo->x, enemigo->y, COLORROJOOSCURO);
+					break;
+				}
+
+				case 2: { // GREMLIN BUENO CAYENDO
+					enemigo->y += enemigo->velocidadY;
+					if (enemigo->y >= LIMITEGREMESC1) {
+						enemigo->tipo = (BYTE)1;
+						enemigo->activo = (BYTE)FALSO;
+						enemigo->escena1 = (BYTE)48;
+					}
 
 					break;
 				}
@@ -525,6 +545,8 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 			break;
 		}
 	}
+
+	PutSprite(enemigo->plano, enemigo->escena1, enemigo->x, enemigo->y, COLORROJOOSCURO);
 } // FIN MueveEnemigo
 
 

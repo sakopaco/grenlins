@@ -8,24 +8,29 @@
 
 typedef unsigned char BYTE;
 
-BYTE FT_RandomNumber (BYTE a, BYTE b);
+BYTE RandomNumber (BYTE a, BYTE b);
 
 void main(void) 
 {
 	int contador;
-	BYTE resultado;
+	int resultado;
 
 
 	Cls();
 
-	for(contador=0; contador<10; contador++) {
-		resultado = FT_RandomNumber((BYTE)0,(BYTE)2);
-		printf("%d\n", resultado);
+	for(contador=0; contador<100; contador++) {
+		resultado = FT_RandomNumber(0,100);
+		if (resultado < 50)
+			printf("%d, ", resultado);
 	}
-	printf("lalalalalal\n");
+	printf("lala3\n");
 
 }
 
-BYTE FT_RandomNumber (BYTE a, BYTE b) {
-    return (BYTE)(rand()%(b-a)+a); // 
+BYTE RandomNumber (BYTE a, BYTE b) {
+
+
+return (BYTE)(rand () % (b-a+1) + a);
+
+    //return (BYTE)(rand()%(b-a)+a); // 
 } // FIN FT_RandomNumber

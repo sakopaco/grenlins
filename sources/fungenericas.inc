@@ -56,9 +56,9 @@ void WAIT(int cicles) {
 // a: NÚMERO MINIMO
 // b: NÚMERO MAXIMO
 // SALIDAS: -
-BYTE FT_RandomNumber (BYTE a, BYTE b) {
-    return (BYTE)(rand()%(b-a)+a); // 
-} // FIN FT_RandomNumber
+BYTE RandomNumber (BYTE a, BYTE b) {
+    return (BYTE)(rand () % (b-a+1) + a);
+} // FIN RandomNumber
 
 
 // FUNCION: PONE UN NOMBRE EN LA ESTRUCTURA FCB PARA PODERLA USAR CON FICHEROS
