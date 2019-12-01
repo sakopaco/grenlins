@@ -454,42 +454,6 @@ void main(void)
 } // FIN PROGRAMA
 
 
-// FUNCION: INICIALIZA LOS VALORES DE LA ESTRUCTURA DEL SPRITE DEL PROTA
-// ENTRADAS: 
-// escena: LA ESCENA DEL JUEGO QUE SE TRATE YA QUE PUEDE VARIAR LOS PATRONES A USAR
-// SALIDAS: -
-void inicializaSpriteProta(BYTE escena) {
-	switch(escena){
-		case ESCENA1: {
-			sprites_prota.direccionMira = (BYTE)MIRAIZQ;
-			sprites_prota.x = (BYTE)100;
-			sprites_prota.y = (BYTE)100;
-			sprites_prota.velocidadX = (BYTE)1;
-			sprites_prota.velocidadY = (BYTE)0;
-			sprites_prota.contSiguienteEscena = (BYTE)2;
-			sprites_prota.resetContador = (BYTE)2;
-			sprites_prota.escena1  = (BYTE)0;
-			sprites_prota.escena2  = (BYTE)4;
-			sprites_prota.escena3  = (BYTE)8;
-			sprites_prota.escena4  = (BYTE)12;
-			sprites_prota.escena1i = (BYTE)0;
-			sprites_prota.escena2i = (BYTE)4;
-			sprites_prota.escena3i = (BYTE)8;
-			sprites_prota.escena4i = (BYTE)12;
-			sprites_prota.escena5i = (BYTE)12;
-			sprites_prota.escena6i = (BYTE)16;
-			sprites_prota.escena1d = (BYTE)20;
-			sprites_prota.escena2d = (BYTE)24;
-			sprites_prota.escena3d = (BYTE)32;
-			sprites_prota.escena4d = (BYTE)36;
-			sprites_prota.escena5d = (BYTE)24;
-			sprites_prota.escena6d = (BYTE)28;
-			break;
-		}
-	}
-} // FIN inicializaSpriteProta
-
-
 // FUNCION: INICIALIZA LOS VALORES DE LA ESTRUCTURA SE SPRITES NO PROTA SEGÚN ESCENA Y TIPO¿?
 // ENTRADAS: 
 // escena: LA ESCENA DEL JUEGO QUE SE TRATE YA QUE PUEDE VARIAR LOS PATRONES A USAR
@@ -502,8 +466,8 @@ void inicializaSpriteEnemigo (BYTE escena, Sprites_STR* enemigo) {
 			enemigo->activo = (BYTE)FALSO;
 			enemigo->direccionMira = (BYTE)MIRAIZQ;
 			enemigo->velocidadX = (BYTE)VELPROTA1;
-			enemigo->contSiguienteEscena = (BYTE)2;
-			enemigo->resetContador = (BYTE)2;
+			enemigo->contSiguienteEscena = (BYTE)6;
+			enemigo->resetContador = (BYTE)6;
 			enemigo->plano = (BYTE)5;
 			enemigo->escena1 = (BYTE)48;
 			enemigo->escena1i = (BYTE)40;
@@ -517,69 +481,6 @@ void inicializaSpriteEnemigo (BYTE escena, Sprites_STR* enemigo) {
 	}
 }
 
-
-// FUNCION: ACTUALIZA LOS DATOS DE LOS SPRITES DEL PROTA Y MUESTRA AL PROTA POR PANTALLA
-// ENTRADAS: 
-// escena: LA ESCENA DEL JUEGO QUE SE TRATE (EL MOVIMIENTO DEL PROTA PUEDE VARIAR)
-// direccion: DIRECCIONES DE LA FUNCION JoystickRead (1 arriba, 3 derecha ...)
-// SALIDAS: -
-void MueveProta (BYTE escena, BYTE direccion) {
-
-	WAIT(1); // PRESCINDIBLE SEGÚN SE DESARROLLE EL PROGRAMA
-
-	if (escena == 1) {
-		switch(direccion) {
-			case TIZQUIERDA: {
-				if (sprites_prota.direccionMira == MIRADER)
-					FlipSpritesProta();
-
-				if(SuperaLimitesProtaEsc1() == FALSO) // SI ES VERDADERO SUPERA LIMITES Y NO MOVEMOS SPRITE PROTA
-					sprites_prota.x += -sprites_prota.velocidadX;
-				else
-					sprites_prota.x = LIMITEPROESC1IZQ;
-
-				sprites_prota.contSiguienteEscena--;
-
-				if (sprites_prota.contSiguienteEscena == 0) {
-					sprites_prota.contSiguienteEscena = sprites_prota.resetContador;
-				
-					if (sprites_prota.escena4 == sprites_prota.escena5i)
-						sprites_prota.escena4 = sprites_prota.escena6i;
-					else
-						sprites_prota.escena4 = sprites_prota.escena5i;
-				}
-				break;
-			}
-
-			case TDERECHA: {
-				if (sprites_prota.direccionMira == MIRAIZQ)
-					FlipSpritesProta();
-				
-				if(SuperaLimitesProtaEsc1() == FALSO) // SI ES VERDADERO SUPERA LIMITES Y NO MOVEMOS SPRITE PROTA
-					sprites_prota.x += sprites_prota.velocidadX;
-				else
-					sprites_prota.x = LIMITEPROESC1DER;
-
-				sprites_prota.contSiguienteEscena--;
-
-				if (sprites_prota.contSiguienteEscena == 0) {
-					sprites_prota.contSiguienteEscena = sprites_prota.resetContador;
-				
-					if (sprites_prota.escena2 == sprites_prota.escena5d)
-						sprites_prota.escena2 = sprites_prota.escena6d;
-					else
-						sprites_prota.escena2 = sprites_prota.escena5d;
-				}
-				break;
-			}
-		}
-	}
-
-	PutSprite(1, sprites_prota.escena1, sprites_prota.x     , sprites_prota.y     , COLORBLANCO);
-	PutSprite(2, sprites_prota.escena2, sprites_prota.x     , sprites_prota.y + 16, COLORBLANCO);
-	PutSprite(3, sprites_prota.escena3, sprites_prota.x + 16, sprites_prota.y     , COLORBLANCO);
-	PutSprite(4, sprites_prota.escena4, sprites_prota.x + 16, sprites_prota.y + 16, COLORBLANCO);
-} // FIN MueveProta
 
 
 // FUNCION: ACTUALIZA LOS DATOS DE LOS SPRITES DEL ENEMIGO Y MUESTRA AL ENEMIGO POR PANTALLA
@@ -628,40 +529,8 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 
 
 
-// FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI EL PROTA MIRA A LA DERECHA O LA IZQ (sprites_prota.direccionMira = PROTAMIRAIZQ o PROTAMIRADER)
-// LOS DATOS EN LA ESTRUCTURA PARA QUE MIRE A LA IZQUIERDA
-// ENTRADAS: - (SE PODRÍA HABER PASADO sprites_prota.direccionMira PERO APROVECHO QUE ES GLOBAL)
-// SALIDAS: -
-void FlipSpritesProta (void) {
-	if (sprites_prota.direccionMira == MIRAIZQ) { // INTERCAMBIAMOS POSICIONES CON LOS DE LA DERECHA
-		sprites_prota.escena1 = sprites_prota.escena1d;
-		sprites_prota.escena2 = sprites_prota.escena2d;
-		sprites_prota.escena3 = sprites_prota.escena3d;
-		sprites_prota.escena4 = sprites_prota.escena4d;
-		sprites_prota.direccionMira = MIRADER;
-	} else {  // INTERCAMBIAMOS POSICIONES CON LOS DE LA IZQUIERDA	
-		sprites_prota.escena1 = sprites_prota.escena1i;
-		sprites_prota.escena2 = sprites_prota.escena2i;
-		sprites_prota.escena3 = sprites_prota.escena3i;
-		sprites_prota.escena4 = sprites_prota.escena4i;
-		sprites_prota.direccionMira = MIRAIZQ;
-	}
-} // FIN FlipSpritesProta
 
-// FUNCION: EXAMINA LOS DATOS DE LOS SPRITES DEL PROTA. SI NO SUPERA LOS LIMITES MANDO FALSO (0) Y EN CASO CONTRARIO VERDADERO (0)
-// ENTRADAS: - (SE PODRÍA HABER PASADO sprites_prota.direccionMira PERO APROVECHO QUE ES GLOBAL)
-// SALIDAS: SI NO SUPERA LOS LIMITES MANDO FALSO (0) Y EN CASO CONTRARIO VERDADERO (0)
-BYTE SuperaLimitesProtaEsc1 (void) {
-	if (sprites_prota.direccionMira == MIRAIZQ) {
-		if (sprites_prota.x <= LIMITEPROESC1IZQ)
-			return VERDADERO;
-	} else {
-		if (sprites_prota.x >= LIMITEPROESC1DER)
-			return VERDADERO;
-	}
 
-	return FALSO;
-} // FIN SuperaLimitesProtaEsc1
 
 #include "fungenericas.inc"
 
