@@ -55,6 +55,7 @@ BYTE vidas; // VIDAS DEL PROTA DE LA PARTIDA
 BYTE escena; // ESCENA DEL JUEGO (1->6)
 BYTE nivel; // LOOP DEL JUEGO (1->n)
 BYTE contadorEscena; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE LAS ESCENAS
+BYTE fallosEscena; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE VIDA POR DEMASIADOS FALLOS
 
 
 // VARIABLES DE FUNCIONES GENERICAS
@@ -65,31 +66,33 @@ static FCB file; // VARIABLE PARA LEER UN FICHERO
 
 // SETUP / INICIALIZACIÓN GLOBAL
 // FUNCIONES JUEGO
-void PintarPantallaInicialJuego 	(void);
-void PreparaTilesTexto 				(BYTE tercio, BYTE color);
-void LimpiaTilesTexto 				(BYTE tercio);
-void PonerColorTileLetra			(int inicio, BYTE tipo);
-void PonerTileLocate 				(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
-void PintarIntroEscena				(void);
-void CargaFondoJuego				(void);
-void PonerTextosFijosZonaInf 		(void);
-void PonerTextosVidas				(void);
-void PonerTextosPuntos				(void);
-void PonerTextosNivel				(void);
-void PonerTextosEscena				(void);
-void PonerTextosContador			(void);
-void PonerMarcoContador 			(void);
-void inicializaSpriteProta			(BYTE escena);
-void inicializaSpriteEnemigo		(BYTE escena, Sprites_STR* enemigo);
-void MueveProta						(BYTE escena, BYTE direccion);
-void MueveEnemigo					(BYTE escena, Sprites_STR* enemigo);
-void FlipSpritesProta				(void);
-BYTE SuperaLimitesProtaEsc1			(void);
+void PintarPantallaInicialJuego (void);
+void PreparaTilesTexto 			(BYTE tercio, BYTE color);
+void LimpiaTilesTexto 			(BYTE tercio);
+void PonerColorTileLetra		(int inicio, BYTE tipo);
+void PonerTileLocate 			(unsigned int mapt, BYTE fila, BYTE col, BYTE* texto);
+void PintarIntroEscena			(void);
+void CargaFondoJuego			(void);
+void PonerTextosFijosZonaInf 	(void);
+void PonerTextosVidas			(void);
+void PonerTextosPuntos			(void);
+void PonerTextosNivelEscena		(void);
+void PonerTextosContador		(void);
+void PonerMarcoContador 		(void);
+void inicializaSpriteProta		(BYTE escena);
+void inicializaSpriteEnemigo	(BYTE escena, Sprites_STR* enemigo);
+void MueveProta					(BYTE escena, BYTE direccion);
+void MueveEnemigo				(BYTE escena, Sprites_STR* enemigo);
+void FlipSpritesProta			(void);
+BYTE SuperaLimitesProtaEsc1		(void);
+void VerificaColisionesEsc1		(void);
+
 
 // FUNCIONES GENERICAS
 void  PulsaEspacio 		(void);
 char* itoa 				(int i, BYTE b[]);
-void  WAIT 				(int cicles);
+void  Espera 			(unsigned int ciclos);
+char  IsSpriteCollision (void);
 BYTE  RandomNumber 		(BYTE a, BYTE b);
 void  FT_SetName		(FCB *p_fcb, const char *p_name);
 void  CargaFicheroVRAM 	(BYTE *nombreFichero, int dirInicio);
@@ -123,7 +126,7 @@ void main(void)
 	do { 
 		// PINTAR PANTALLA INICIAL DE JUEGO
 		//#######  comentado para ahorrar tiempo
-		//PintarPantallaInicialJuego();
+		PintarPantallaInicialJuego();
 
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
@@ -135,15 +138,14 @@ void main(void)
 
 		// LOOP JUEGO ESCENA
 		do {
-			// PINTAR INTRO DE ESCENA
-			
-			//#######  comentado para ahorrar tiempo
-			//PintarIntroEscena();
+			// PINTAR INTRO DE ESCENA			
+			PintarIntroEscena();//#######  comentado para ahorrar tiempo
 
 			switch(escena) {
 				case ESCENA1: {
 					// SETUP / INICIALIZACIÓN VARIABLES DE ESCENA
 					contadorEscena = VALINICIOCONTADOR1;
+					fallosEscena = LIMITEDALLOSESC1;
 
 					// CARGAR GRÁFICOS Y PATRONES NO COMUNES (DE ESCENA)
 					// PONER LOS PATRONES DE SPRITES DE ESTA ESCENA
@@ -196,10 +198,12 @@ void main(void)
 						MueveProta(escena,JoystickRead(LEETECLADO));
 
 						if (sprites_otros[0].activo == VERDADERO) {
-							MueveEnemigo(escena, sprites_otros);	
+							MueveEnemigo(escena, sprites_otros);
 						} else {
 							// INICIALIZA/SPAWMEA/MUEVE ENEMIGOS
+							sprites_otros[0].tipo = (BYTE)1; // SON TODOS DE TIPO 1 (GREM ANDANDO CORNISA)
 							sprites_otros[0].activo = (BYTE)VERDADERO;
+							sprites_otros[0].escena1 = (BYTE)48; // RESETEO SPRITE
 							sprites_otros[0].destinoX = (BYTE)RandomNumber((BYTE)BASESPRITEGRENHORIZQ, (BYTE)BASESPRITEGRENHORDER);
 							if(RandomNumber((BYTE)0, (BYTE)2) == (BYTE)1) {
 								sprites_otros[0].direccionMira = (BYTE)MIRADER;
@@ -231,11 +235,12 @@ void main(void)
 							// PINTAR/ACTUALIZAR ELEMENTOS SI APLICA
 							// PINTAR/ACTUALIZAR ACCESORIOS, SIAPLICA
 							// ACTUALIZA ANIMACIONES/ ACCESORIOS
+						VerificaColisionesEsc1();
 
 						// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
-
-
-
+							// 2 LINEAS DE ESPERA PARA QUE EL MOVIMIENTO DE SPRITES NO SEA DEMASIADO RÁPIDO
+							Espera (ESBUCLEESC1);
+    						while(IsVsync()) {}
 					} while(contadorEscena); // FIN LOOP DENTRO ESCENA (CONTADOR ESCENA TIENDE A 0 Y VERO ES FALSO)
 
 					free(sprites_otros); // SE LIBERA LA MEMORIA RESERVADA EN ESTA ESCENA POR ESPRITES QUE NO SON EL PROTA
@@ -454,35 +459,6 @@ void main(void)
 } // FIN PROGRAMA
 
 
-// FUNCION: INICIALIZA LOS VALORES DE LA ESTRUCTURA SE SPRITES NO PROTA SEGÚN ESCENA Y TIPO¿?
-// ENTRADAS: 
-// escena: LA ESCENA DEL JUEGO QUE SE TRATE YA QUE PUEDE VARIAR LOS PATRONES A USAR
-// escena: ESTRUCTURA DE ESPRITE A INICIALIZAR, SE PASA COMO REFERENCIA PARA PODER MODIFICAR
-// SALIDAS: -
-void inicializaSpriteEnemigo (BYTE escena, Sprites_STR* enemigo) {
-	switch(escena){
-		case ESCENA1: {
-			enemigo->tipo = (BYTE)1; // GREMBLIN BUENO
-			enemigo->activo = (BYTE)FALSO;
-			enemigo->direccionMira = (BYTE)MIRAIZQ;
-			enemigo->velocidadX = (BYTE)VELGRENHOR1;
-			enemigo->velocidadY = (BYTE)VELGRENVER1;
-			enemigo->contSiguienteEscena = (BYTE)6;
-			enemigo->resetContador = (BYTE)6;
-			enemigo->plano = (BYTE)5;
-			enemigo->escena1 = (BYTE)48;
-			enemigo->escena1i = (BYTE)40;
-			enemigo->escena2i = (BYTE)44;
-			enemigo->escena1d = (BYTE)48;
-			enemigo->escena2d = (BYTE)52;
-			enemigo->escena5d = (BYTE)56; // grenbueno_cae
-			enemigo->escena6d = (BYTE)60; // grenbueno_tiraobj
-			break;
-		}
-	}
-}
-
-
 
 // FUNCION: ACTUALIZA LOS DATOS DE LOS SPRITES DEL ENEMIGO Y MUESTRA AL ENEMIGO POR PANTALLA
 // ENTRADAS: 
@@ -530,12 +506,11 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 					break;
 				}
 
-				case 2: { // GREMLIN BUENO CAYENDO
+				case 2: { // GREMLIN BUENO O MACETA CAYENDO
 					enemigo->y += enemigo->velocidadY;
-					if (enemigo->y >= LIMITEGREMESC1) {
-						enemigo->tipo = (BYTE)1;
-						enemigo->activo = (BYTE)FALSO;
-						enemigo->escena1 = (BYTE)48;
+					if (enemigo->y >= LIMITEGREMESC1) { // VERIFICAMOS LIMITE HASTA DONDE CAE
+						enemigo->activo = (BYTE)FALSO; // DESACTIVO SPRITE (NO ES NECESARIO PERO ES PARA SEGUIR LA MISMA TÓNICA CUANDO SEAN MUCHOS)
+						fallosEscena--;
 					}
 
 					break;
@@ -550,6 +525,13 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 } // FIN MueveEnemigo
 
 
+void VerificaColisionesEsc1 (void) {
+	if (IsSpriteCollision() == VERDADERO) {
+		Screen(0);
+		Cls();
+		Exit(0);
+	}
+} // FIN VerificaColisionesEsc1
 
 
 

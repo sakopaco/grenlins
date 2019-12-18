@@ -39,16 +39,25 @@ char* itoa(int i, char b[]){
 
 
 
-// FUNCION: Generates a pause in the execution of n interruptions.
+// FUNCION: CREA UNA PAUSA
 // ENTRADAS:
-// cicles: ESPERA PAL: 50=1second. ; NTSC: 60=1second. 
+// cicles: ENTERO CON UN CONTADOR PARA ESPERAR
 // SALIDAS: -
-void WAIT(int cicles) {
-  unsigned int i;
+void Espera (unsigned int ciclos) {
+  unsigned int contador;
+  for(contador = ciclos; contador--; ) {};
+} // FIN Espera
 
-  for(i=0;i<cicles;i++) HALT;
-  return;
-} // FIN WAIT
+
+
+// FUNCION: INDICA SI HAY UNA COLISIÓN DE SPRITES
+// ENTRADAS: 
+// SALIDAS: 1 - SI DOS SPRITES SOLISIONAN EN PANTALLA O 0 EN CASO CONTRARIO
+char IsSpriteCollision(void)
+{
+  return((VDPstatus(0) >> 5)  & 0x01);
+} // FIN IsSpriteCollision
+
 
 
 // FUNCION: DEVUELVE UN NUMERO ALEATORIO ENTRE A Y B-1 (EN PRINCIPIO CHAR CON LO QUE SE TRABAJA COMO MUCHO A 255)

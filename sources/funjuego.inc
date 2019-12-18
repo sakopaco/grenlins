@@ -27,11 +27,12 @@ void PintarPantallaInicialJuego () {
 
   for (contador = 0; contador < 20; contador++) {
     PonerTileLocate (MAPT2, 7, 6, "-- PULSA ESPACIO --");
-    WAIT(8);
+    Espera (ESPINTROESCENA);
     PonerTileLocate (MAPT2, 7, 6, "                   ");
-    WAIT(8);
+    Espera (ESPINTROESCENA);
   }
 } // FIN PintarPantallaInicialJuego
+
 
 // FUNCION: PONE LOS TILES DE LETRAS PARA ESCRIBIR EN PANTALLA
 // ENTRADAS: 
@@ -705,6 +706,8 @@ void PonerTileLocate (unsigned int mapt, BYTE fila, BYTE col, BYTE* texto) {
 // nivel: de 1 en adelante (el nivel incrementa la dificultad de las escenas y se incremente cuando se superan todas las escenas)
 // SALIDAS: -
 void PintarIntroEscena () {
+  BYTE contador;
+
   HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
   // PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
   PreparaTilesTexto ((BYTE)1, COLORLETRABLANCO);
@@ -726,10 +729,10 @@ void PintarIntroEscena () {
       PonerTileLocate (MAPT2, 0, 1, "LLEGASTE DE UNA FIESTA A CASA");
       PonerTileLocate (MAPT2, 1, 1, "Y TE QUEDASTE DORMIDO VIENDO");
       PonerTileLocate (MAPT2, 2, 1, "LOS GREMLINS TE HAS PUESTO A");
-      PonerTileLocate (MAPT2, 3, 1, "SOÑAR QUE ESTÁS EN UNA TIENDA");
+      PonerTileLocate (MAPT2, 3, 1, "SONAR QUE ESTAS EN UNA TIENDA");
       PonerTileLocate (MAPT2, 4, 1, "MISTERIOSA COMPRANDO UNA");
       PonerTileLocate (MAPT2, 5, 1, "MASCOTA SE RAPIDO PARA QUE EL");
-      PonerTileLocate (MAPT2, 6, 1, "DUEÑO NO PIERDA LA PACIENCIA");
+      PonerTileLocate (MAPT2, 6, 1, "DUENO NO PIERDA LA PACIENCIA");
       PonerTileLocate (MAPT2, 7, 1, "Y TU UNA VIDA");
       break;
     }
@@ -786,7 +789,7 @@ void PintarIntroEscena () {
 
   ShowDisplay(); // MOSTRAMOS RESULTADO
 
-  WAIT(ESPERAINTROESCENA);
+  for(contador = 18; contador--; ) Espera (ESPTEXTOFASE);
 } // FIN PintaTileTexto
 
 
@@ -856,8 +859,7 @@ void PonerTextosFijosZonaInf () {
   PonerMarcoContador();
   PonerTextosPuntos();
   PonerTextosVidas();
-  PonerTextosNivel();
-  PonerTextosEscena();
+  PonerTextosNivelEscena();
   PonerTextosContador();
 }// FIN PonerTextosFijosZonaInf
 
@@ -895,19 +897,13 @@ void PonerTextosVidas () {
 // FUNCION: PINTA EL NIVEL EN LA ZONA INFERIOR
 // ENTRADAS: -
 // SALIDAS: -
-void PonerTextosNivel () {
+void PonerTextosNivelEscena () {
   itoa(nivel, cadena);
   PonerTileLocate (MAPT3, 4, 29, cadena);
-}// FIN PonerTextosNivel
 
-
-// FUNCION: PINTA LAS ESCENA EN LA ZONA INFERIOR
-// ENTRADAS: -
-// SALIDAS: -
-void PonerTextosEscena () {
   itoa(escena, cadena);
   PonerTileLocate (MAPT3, 6, 29, cadena);
-}// FIN PonerTextosEscena
+}// FIN PonerTextosNivelEscena
 
 
 // FUNCION: PINTA EL CONTADOR A DECREMENTAR EN LA ZONA INFERIOR
@@ -963,9 +959,6 @@ void inicializaSpriteProta(BYTE escena) {
 // direccion: DIRECCIONES DE LA FUNCION JoystickRead (1 arriba, 3 derecha ...)
 // SALIDAS: -
 void MueveProta (BYTE escena, BYTE direccion) {
-
-  WAIT(1); // PRESCINDIBLE SEGÚN SE DESARROLLE EL PROGRAMA
-
   if (escena == 1) {
     switch(direccion) {
       case TIZQUIERDA: {
@@ -1057,3 +1050,36 @@ BYTE SuperaLimitesProtaEsc1 (void) {
 
   return FALSO;
 } // FIN SuperaLimitesProtaEsc1
+
+
+
+// FUNCION: INICIALIZA LOS VALORES DE LA ESTRUCTURA SE SPRITES NO PROTA SEGÚN ESCENA Y TIPO
+// ENTRADAS: 
+// escena: LA ESCENA DEL JUEGO QUE SE TRATE YA QUE PUEDE VARIAR LOS PATRONES A USAR
+// escena: ESTRUCTURA DE ESPRITE A INICIALIZAR, SE PASA COMO REFERENCIA PARA PODER MODIFICAR
+// SALIDAS: -
+void inicializaSpriteEnemigo (BYTE escena, Sprites_STR* enemigo) {
+  switch(escena){
+    case ESCENA1: {
+      enemigo->tipo = (BYTE)1; // GREMBLIN BUENO
+      enemigo->activo = (BYTE)FALSO;
+      enemigo->direccionMira = (BYTE)MIRAIZQ;
+      enemigo->velocidadX = (BYTE)VELGRENHOR1;
+      enemigo->velocidadY = (BYTE)VELGRENVER1;
+      enemigo->contSiguienteEscena = (BYTE)6;
+      enemigo->resetContador = (BYTE)6;
+      enemigo->plano = (BYTE)5;
+      enemigo->escena1 = (BYTE)48;
+      enemigo->escena1i = (BYTE)40;
+      enemigo->escena2i = (BYTE)44;
+      enemigo->escena1d = (BYTE)48;
+      enemigo->escena2d = (BYTE)52;
+      enemigo->escena5d = (BYTE)56; // grenbueno_cae
+      enemigo->escena6d = (BYTE)60; // grenbueno_tiraobj
+      break;
+    }
+  }
+}//  FIN inicializaSpriteEnemigo
+
+
+

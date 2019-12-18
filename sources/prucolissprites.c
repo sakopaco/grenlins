@@ -22,9 +22,10 @@ static const BYTE spriteb[] = {
 void WAIT(int cicles) {
   unsigned int i;
 
-  for(i=0;i<cicles;i++) ;
-    //if (SpriteCollision()==1) collision=1;
-    //while(IsVsync())   {}
+  for(i=0;i<cicles;i++)
+    if (SpriteCollision()==1) collision=1;
+    while(IsVsync())
+    {}
   return;
 }
 
@@ -61,8 +62,6 @@ void main(void)
     for (contador = 0; contador < 190; contador++) {
         PutSprite(2, 4, 55 , contador , color);
         WAIT(200);
-
-if (SpriteCollision()==1) collision=1;
 
         if (collision == 1) { // IT IS ALWAYS FALSE AND IT SEEMS NOT WORKING
             color = 6;
