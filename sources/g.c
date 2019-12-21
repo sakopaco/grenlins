@@ -4,8 +4,14 @@
 #include "fusion-c/header/msx_fusion.h"
 #include "fusion-c/header/io.h"
 #include "fusion-c/header/vdp_sprites.h"
+#include "fusion-c/header/pt3replayer.h"
 
 #include "defconstantes.inc"
+
+// SONIDO / MUSICA
+BYTE song[SONG_BUFFER]; // ARRAY QUE ALMACENARÁ EL ARCHIVO DE MÚSICA A TOCAR. SONG_BUFFER VALE 9000
+static FCB file; // FICHERO PARA ARCHIVO DE MÚSICA
+
 
 // ESTRUCTURAS GENERICAS
 // EL PROTA ES UN CONJUNTO DE 4 SPRITES (LAS PRIERNAS SON DOS), EL RESTO 1 (PUEDEN CAMBIAR SI SON ESCENAS)
@@ -96,6 +102,10 @@ char  IsSpriteCollision (void);
 BYTE  RandomNumber 		(BYTE a, BYTE b);
 void  FT_SetName		(FCB *p_fcb, const char *p_name);
 void  CargaFicheroVRAM 	(BYTE *nombreFichero, int dirInicio);
+void  FT_errorHandler	(char n, char *name);
+int   FT_LoadData		(char *file_name, char *buffer, int size, int skip);
+void  PT3PreparaPlayer 	(char* nCancion, BYTE* datosFichero, int tamano, BYTE modo);
+void  PT3ParaPlayer		(void);
 
 
 // INICIO PROGRAMA
@@ -103,6 +113,15 @@ void main(void)
 {
 	// DEFINIR VARIABLES NO GLOBALES
 	BYTE finPartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
+
+	// VARIABLES PARA MUSICA
+	char music;
+	char *file[1]={"Music1.pt3"}; // lista de ficheros
+	int size[1]={8417}; // TAMAÑO DE LOS FICHEROS DENTRO DEL ARRAY *file (8417 <- Music1.pt3)
+
+	// PREPARA PLAYER DE MELODIAS
+	music=0; // VARIABLE QUE INDICA LA CANCIÓN A TOCAR DENTRO DEL ARRAY *file
+	PT3PreparaPlayer (file[music], song, size[music], 0);
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
 	Screen(SCREEN2);
@@ -533,6 +552,75 @@ void VerificaColisionesEsc1 (void) {
 	}
 } // FIN VerificaColisionesEsc1
 
+
+void PT3PreparaPlayer (char* nCancion, BYTE* datosFichero, int tamano, BYTE modo) {
+	FT_LoadData(nCancion, datosFichero, tamano, 0); // CARGA LOS DATOS DEL FICHERO DE MÚSICA INDICADO (file[music]) Y SU TAMAÑO
+	PT3Init (datosFichero + 99, modo); // INICIALIZA EL PLAYER INDICANDO: DONDE ESTÁ EL FICHERO EN MEMORIA Y 0 QUE FUNCIONE EN MODO LOOP
+} // FIN PreparaPlayer
+
+
+void PT3ParaPlayer (void) {
+ 	// PARA EL PLAYER DE MÚSICA
+  	EnableInterupt(); 
+  	InitPSG();
+} // FIN ParaPlayer
+
+
+/* ---------------------------------
+          FT_LoadData
+  Load Data to a specific pointer
+  size is the size of data to read
+  skip represent the number of Bytes
+  you want to skip from the begining of the file
+  Example: skip=7 to skip 7 bytes of a MSX bin
+-----------------------------------*/ 
+int FT_LoadData(char *file_name, char *buffer, int size, int skip) {
+    FT_SetName( &file, file_name );
+    if(fcb_open( &file ) != FCB_SUCCESS) {
+          FT_errorHandler(1, file_name);
+          return (0);
+    }
+
+    if (skip>0) {
+        fcb_read( &file, buffer, skip );
+    }
+   
+    fcb_read( &file, buffer, size );
+    
+    if( fcb_close( &file ) != FCB_SUCCESS ) {
+      FT_errorHandler(2, file_name);
+      return (0);
+    }
+
+    return(0);
+}// FIN FT_LoadData
+
+
+
+/* ---------------------------------
+            FT_errorHandler
+
+          In case of Error
+-----------------------------------*/ 
+void FT_errorHandler(char n, char *name) {
+  	InitPSG();
+  	Screen(0);
+  	SetColors(15,6,6);
+  	switch (n) {
+    	case 1:
+          	printf("\n\rFAILED: fcb_open(): %s ",name);
+      		break;
+
+      	case 2:
+        	printf("\n\rFAILED: fcb_close(): %s",name);
+      		break;  
+
+      	case 3:
+        	printf("\n\rSORRY: this game does not work on %s",name);
+      		break; 
+  	}
+	Exit(0);
+}
 
 
 

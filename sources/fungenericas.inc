@@ -2,7 +2,7 @@
 // FUNCION: BLOQUEA HASTA QUE SE PULSA TECLA
 // ENTRADAS: -
 // SALIDAS: -
-void PulsaEspacio () {
+void PulsaTecla () {
 	KillKeyBuffer();
 	do {
 	} while (Inkey() == NOSEPULSATECLA);

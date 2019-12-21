@@ -23,7 +23,20 @@ void PintarPantallaInicialJuego () {
   PonerTileLocate (MAPT2, 7, 6, "-- PULSA ESPACIO --");
   ShowDisplay(); // MOSTRAMOS RESULTADO
 
-  PulsaEspacio();
+  // HACE QUE SUENE EL PLAYER. PARECE QUE TIENE QUE ESTAR EN BUCLE TODO EL RATO (AUNQUE SEA EN EL BUCLE PRINCIPAL)
+  // HASTA QUE SE PULSE UNA TECLA
+  InitPSG(); // RESETEA EL PSG PARA SONIDO O MÚSICA
+  KillKeyBuffer();
+  do {
+    Halt();
+    DisableInterupt();
+    PT3Rout(); // CARGA DATOS DE LA CANCIÓN EN PSG
+    PT3Play(); // TOCA LOS DATOS DE LA CANCIÓN
+    EnableInterupt();
+  } while (Inkey() == NOSEPULSATECLA);
+  KillKeyBuffer();
+  PT3ParaPlayer(); // PARA LA CANCION DEL PLAYER
+ 
 
   for (contador = 0; contador < 20; contador++) {
     PonerTileLocate (MAPT2, 7, 6, "-- PULSA ESPACIO --");
