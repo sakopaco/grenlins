@@ -4,7 +4,7 @@
 // ENTRADAS: -
 // SALIDAS: -
 void PintarPantallaInicialJuego () {
-  BYTE contador;
+  unsigned int contador, contador2;
 
   HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
   // PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
@@ -37,13 +37,20 @@ void PintarPantallaInicialJuego () {
   KillKeyBuffer();
   PT3ParaPlayer(); // PARA LA CANCION DEL PLAYER
  
-
-  for (contador = 0; contador < 20; contador++) {
-    PonerTileLocate (MAPT2, 7, 6, "-- PULSA ESPACIO --");
-    Espera (ESPINTROESCENA);
-    PonerTileLocate (MAPT2, 7, 6, "                   ");
-    Espera (ESPINTROESCENA);
+  PlayFX(6); // SONIDO CUANDO PULSA UNA TECLA PARA EMPEZAR JUEGO
+  // PARPADEO DEL PULSA UNA TECLA
+  for(contador = 200; contador--; ) {
+    FT_CheckFX();
+    
+    for (contador2 = 400; contador2--; ) {}
+    if (contador%2 == 0) {
+       PonerTileLocate (MAPT2, 7, 6, "                   ");
+    } else {
+       PonerTileLocate (MAPT2, 7, 6, "-- PULSA ESPACIO --");
+     }
   }
+
+  AYFXPreparaEfectos();
 } // FIN PintarPantallaInicialJuego
 
 
@@ -719,7 +726,8 @@ void PonerTileLocate (unsigned int mapt, BYTE fila, BYTE col, BYTE* texto) {
 // nivel: de 1 en adelante (el nivel incrementa la dificultad de las escenas y se incremente cuando se superan todas las escenas)
 // SALIDAS: -
 void PintarIntroEscena () {
-  BYTE contador;
+  unsigned int contador;
+  BYTE music;
 
   HideDisplay(); // OCULTAMOS PORQUE AL PINTAR LOS TILES SE VEN EN PANTALLA
   // PREPARAMOS LOS TILES DE LETRAS EN CADA TERCIO DE PANTALLA Y SE LIMPIA PARA USO
@@ -802,7 +810,28 @@ void PintarIntroEscena () {
 
   ShowDisplay(); // MOSTRAMOS RESULTADO
 
-  for(contador = 18; contador--; ) Espera (ESPTEXTOFASE);
+
+  // PREPARA PLAYER DE MELODIAS
+  PT3PreparaPlayer (nombresFicherosMusica[MELODIA2], song, tamanosFicherosMusica[MELODIA2], 0); // MELODIA2 VARIABLE QUE INDICA LA CANCIÓN A TOCAR DENTRO DEL ARRAY *file
+  InitPSG(); // RESETEA EL PSG PARA SONIDO O MÚSICA
+  for (contador = 700; contador--; ) {
+    Halt();
+    DisableInterupt();
+    PT3Rout(); // CARGA DATOS DE LA CANCIÓN EN PSG
+    PT3Play(); // TOCA LOS DATOS DE LA CANCIÓN
+    EnableInterupt();
+  }
+  KillKeyBuffer();
+  PT3ParaPlayer(); // PARA LA CANCION DEL PLAYER
+
+
+
+//################  PONER LA ESPERA
+  
+
+
+
+
 } // FIN PintaTileTexto
 
 

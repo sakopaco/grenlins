@@ -5,12 +5,17 @@
 #include "fusion-c/header/io.h"
 #include "fusion-c/header/vdp_sprites.h"
 #include "fusion-c/header/pt3replayer.h"
+#include "fusion-c/header/ayfx_player.h"
+
 
 #include "defconstantes.inc"
 
-// SONIDO / MUSICA
+
+// SONIDO / MUSICA / EFECTOS SONOROS
 BYTE song[SONG_BUFFER]; // ARRAY QUE ALMACENARÁ EL ARCHIVO DE MÚSICA A TOCAR. SONG_BUFFER VALE 9000
-static FCB file; // FICHERO PARA ARCHIVO DE MÚSICA
+static FCB file; // FICHERO PARA ARCHIVO DE MÚSICA / Y DE EFECTOS SONOROS
+char *nombresFicherosMusica[2]; // ARRAY QUE ALMACENA LOS NOMBRES DE LOS FICHEROS DE MUSICA
+int tamanosFicherosMusica[2]; // ARRAY QUE ALMACENA LOS TAMAÑOS DE LOS FICHEROS DE MUSICA
 
 
 // ESTRUCTURAS GENERICAS
@@ -64,6 +69,10 @@ BYTE contadorEscena; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE LAS ESCEN
 BYTE fallosEscena; // EL VALOR QUE VA DECRECIENDO PARA MARCAR FIN DE VIDA POR DEMASIADOS FALLOS
 
 
+int contadorSonidoAndaGremEsc1; // ###############
+
+
+
 // VARIABLES DE FUNCIONES GENERICAS
 static FCB file; // VARIABLE PARA LEER UN FICHERO
 
@@ -106,6 +115,7 @@ void  FT_errorHandler	(char n, char *name);
 int   FT_LoadData		(char *file_name, char *buffer, int size, int skip);
 void  PT3PreparaPlayer 	(char* nCancion, BYTE* datosFichero, int tamano, BYTE modo);
 void  PT3ParaPlayer		(void);
+void  AYFXPreparaEfectos(void);
 
 
 // INICIO PROGRAMA
@@ -113,15 +123,15 @@ void main(void)
 {
 	// DEFINIR VARIABLES NO GLOBALES
 	BYTE finPartida; // INDICADOR VERDADERO 1 O FALSO 0 PARA VER SI NOS HAN MATADO TODAS LAS VIDAS
+	int contadorEsperas; // PARA ESPERAS EN BUCLES DE CADA ESCENA
 
 	// VARIABLES PARA MUSICA
-	char music;
-	char *file[1]={"Music1.pt3"}; // lista de ficheros
-	int size[1]={8417}; // TAMAÑO DE LOS FICHEROS DENTRO DEL ARRAY *file (8417 <- Music1.pt3)
-
-	// PREPARA PLAYER DE MELODIAS
-	music=0; // VARIABLE QUE INDICA LA CANCIÓN A TOCAR DENTRO DEL ARRAY *file
-	PT3PreparaPlayer (file[music], song, size[music], 0);
+	// LISTA DE FICHEROS
+	nombresFicherosMusica[0] = "Music1.pt3";
+	nombresFicherosMusica[1] = "Music2.pt3";
+	// TAMAÑO DE LOS FICHEROS DENTRO DEL ARRAY *file (8417 <- Music1.pt3)
+	tamanosFicherosMusica[0] = 8417; 
+	tamanosFicherosMusica[0] = 2501;
 
 	// SETUP / INICIALIZACIÓN (INICIAL) ENTORNO Y VARIABLES DE JUEGO
 	Screen(SCREEN2);
@@ -134,6 +144,20 @@ void main(void)
 	nivel = NIVELINICIO;
 	escena = ESCENAINICIO;
 
+
+// ###############################
+	contadorSonidoAndaGremEsc1 = 1;
+
+
+
+	// PREPARA EFECTOS SONOROS
+	afbdata=MMalloc(AFB_SIZE);  
+  	AYFXPreparaEfectos();
+  	FT_LoadData("test.afb", afbdata, AFB_SIZE, 0);
+
+	// PREPARA PLAYER DE MELODIAS	
+	PT3PreparaPlayer (nombresFicherosMusica[MELODIA1], song, tamanosFicherosMusica[MELODIA1], 0); // MELODIA1 VARIABLE QUE INDICA LA CANCIÓN A TOCAR DENTRO DEL ARRAY *file
+
 	// CONFIGURA SPRITES
 	SpriteReset();	
 	Sprite16();
@@ -144,8 +168,8 @@ void main(void)
 	// LOOP JUEGO
 	do { 
 		// PINTAR PANTALLA INICIAL DE JUEGO
-		//#######  comentado para ahorrar tiempo
-		PintarPantallaInicialJuego();
+		//PintarPantallaInicialJuego();//#######  comentado para ahorrar tiempo
+		
 
 		// SELECCIONAR SI APLICA MODOS DE JUEGO
 		// SETUP / INICIALIZACIÓN (NO INICIAL, DE CADA PARTIDA) VARIABLES DE JUEGO
@@ -257,9 +281,38 @@ void main(void)
 						VerificaColisionesEsc1();
 
 						// OTROS CHEQUEOS Y ACTUALIZCIONES DE VARIABLES
-							// 2 LINEAS DE ESPERA PARA QUE EL MOVIMIENTO DE SPRITES NO SEA DEMASIADO RÁPIDO
-							Espera (ESBUCLEESC1);
-    						while(IsVsync()) {}
+
+							// ESPERA PARA QUE EL MOVIMIENTO DE SPRITES NO SEA DEMASIADO RÁPIDO
+						/*
+							for(contadorEsperas = 900; contadorEsperas--; ) {
+								// SONIDO DEL GREMLIN ANADANDO	
+								if (sprites_otros[0].tipo == 1) {
+									FT_CheckFX();
+									if (contadorSonidoAndaGremEsc1 == 0) {
+										contadorSonidoAndaGremEsc1 = 1000;
+										PlayFX(3);
+									} else {
+										contadorSonidoAndaGremEsc1--;	
+									}
+								}
+    						}
+*/
+						/*
+							for(contadorEsperas = 200; contadorEsperas--; ) {
+								// ACTUALIZA EFECTOS DE SONIDO
+								FT_CheckFX();
+								// SONIDO DEL GREMLIN ANADANDO	
+								if (sprites_otros[0].tipo == 1 && contadorSonidoAndaGremEsc1 == 1) {
+									if (contadorEsperas == 0) {
+										AYFXPreparaEfectos();
+										PlayFX(3);
+										contadorSonidoAndaGremEsc1 = 0;
+									} 
+								}
+    						}
+    						*/
+    						// PARA QUE LOS GRAFICOS SE MUESTREN BIEN
+	    					while(IsVsync()) {}
 					} while(contadorEscena); // FIN LOOP DENTRO ESCENA (CONTADOR ESCENA TIENDE A 0 Y VERO ES FALSO)
 
 					free(sprites_otros); // SE LIBERA LA MEMORIA RESERVADA EN ESTA ESCENA POR ESPRITES QUE NO SON EL PROTA
@@ -489,12 +542,9 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 		case 1: {
 			switch(enemigo->tipo) {
 				case 1: { // GREMBLIN BUENO	ANDANDO IZQ O DER
-					if (enemigo->direccionMira == (BYTE)MIRADER)
-						enemigo->x += enemigo->velocidadX;
-					else
-						enemigo->x -= enemigo->velocidadX;
-
 					if (enemigo->direccionMira == (BYTE)MIRADER) {
+						enemigo->x += enemigo->velocidadX;
+
 						if (enemigo->x >= enemigo->destinoX) {
 							enemigo->tipo = (BYTE)2; // GREMLIN CAYENDO O MACETA
 							if(RandomNumber((BYTE)0, (BYTE)100) <= (BYTE)(PROBOBJETOESC1 + (nivel * 5))) {
@@ -508,6 +558,8 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 							else
 								enemigo->escena1 = enemigo->escena1d;
 					} else {
+						enemigo->x -= enemigo->velocidadX;
+
 						if (enemigo->x <= enemigo->destinoX) {
 							enemigo->tipo = (BYTE)2; // GREMLIN CAYENDO O MACETA
 							if(RandomNumber((BYTE)0, (BYTE)100) <= (BYTE)(PROBOBJETOESC1 + (nivel * 5))) {
@@ -544,6 +596,9 @@ void MueveEnemigo (BYTE escena, Sprites_STR* enemigo) {
 } // FIN MueveEnemigo
 
 
+// FUNCION: 
+// ENTRADAS: - 
+// SALIDAS: -
 void VerificaColisionesEsc1 (void) {
 	if (IsSpriteCollision() == VERDADERO) {
 		Screen(0);
@@ -551,6 +606,20 @@ void VerificaColisionesEsc1 (void) {
 		Exit(0);
 	}
 } // FIN VerificaColisionesEsc1
+
+
+
+// FUNCION: INICIALIZA PSG PARA EFECTOS SONOROS
+// ENTRADAS: -
+// SALIDAS: -
+void AYFXPreparaEfectos (void) {
+  InitPSG();
+  InitFX();
+} // FIN AYFXPreparaEfectos
+
+
+
+
 
 
 #include "fungenericas.inc"
